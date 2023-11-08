@@ -1,7 +1,7 @@
 import prompt from 'prompt-sync';
 
 let input = prompt();
-
+//teste
 //1) a)
 class Perfil {
     private _id: number;
