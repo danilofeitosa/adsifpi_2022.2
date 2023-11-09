@@ -108,7 +108,7 @@ class PostagemAvancada extends Postagem {
         }
     }
     //2) b) iii)
-    decrementarVisualizacoes() {
+    decrementarVisualizacoes(Postagem) {
         if (this._visualizacoesRestantes > 0) {
             this._visualizacoesRestantes--;
         }
@@ -312,7 +312,7 @@ class App {
                     break;
                 case "7":
                     console.log("7 - Decrementar Visualizações");
-                //if (this._redeSocial.repPostagens.postagens.)
+                    break;
             }
             enter_para_continuar();
             limpar_tela();
