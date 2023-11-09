@@ -1,7 +1,7 @@
 import prompt from 'prompt-sync';
 
 let input = prompt();
-//teste
+
 //1) a)
 class Perfil {
     private _id: number;
@@ -96,7 +96,7 @@ class Postagem {
 }
 //1) d)
 class PostagemAvancada extends Postagem {
-    private _hashtags: string[];
+    private _hashtags: string[] = [];
     private _visualizacoesRestantes: number;
 
     constructor(id: number, texto: string, curtidas: number, descurtidas: number, data: Date, perfil: Perfil, _hashtags: string[], _visualizacoesRestantes: number) { 
@@ -113,7 +113,6 @@ class PostagemAvancada extends Postagem {
     get visualizacoesRestantes(): number {
         return this._visualizacoesRestantes;
     }
-
 //2) b) i)
     adicionarHashtag(hashtag: string): void {
        this._hashtags.push(hashtag)
@@ -132,10 +131,11 @@ class PostagemAvancada extends Postagem {
     decrementarVisualizacoes(): void {
         if (this._visualizacoesRestantes > 0) {
             this._visualizacoesRestantes--
+        } else {
+            console.log("Não é mais possível decrementar visualizações dessa postagem!");
         }
     }
 }
-
 class RepositorioDePerfis {
 // 03) a)
     private _perfis: Perfil[] = []
@@ -255,7 +255,6 @@ class RedeSocial {
         }
     }
 } 
-
 class App {
     private _redeSocial: RedeSocial = new RedeSocial
     exibirmenu(): void {
@@ -298,11 +297,14 @@ class App {
                     break;
                 case "3":
                     console.log("3 - Incluir Postagem");
-                    let idPostagem: number = parseInt(input("ID da Postagem: ")); //Fazer o ID ser automático
+                    let idPostagem: number = parseInt(input("ID da Postagem: "));
                     let textoPostagem: string = input("Texto da Postagem: ");
                     let nomeperfildaPostagem: string = input("Qual o nome do Perfil?: ");
+                    let hashtagsdaPostagem: string = input("Escreva a(s) hashtags a serem cadastradas precedidas de #: ")
+                    let arrayhashtagsdaPostagem: string[] = hashtagsdaPostagem.split(" #")
+                    let visualizacoesdaPostagem: number = parseInt(input("Quantas visualizações: "))
                     let perfildaPostagem: Perfil = this._redeSocial.consultarPerfil(undefined, nomeperfildaPostagem, undefined)
-                    let novaPostagem: Postagem = new Postagem(idPostagem, textoPostagem, 0, 0, new Date(), perfildaPostagem)
+                    let novaPostagem: PostagemAvancada = new PostagemAvancada(idPostagem, textoPostagem, 0, 0, new Date(), perfildaPostagem, arrayhashtagsdaPostagem, visualizacoesdaPostagem)
                     this._redeSocial.incluirPostagem(novaPostagem);
                     console.log(`Postagem do Perfil ${novaPostagem.perfil.nome} incluída com sucesso`);
                     break;
@@ -329,6 +331,10 @@ class App {
                     this._redeSocial.descurtir(idDescurtirPostagem)
                     console.log(`Postagem descurtida ☹`)
                     break;
+                case "7":
+                    console.log("7 - Decrementar Visualizações");
+                    //if (this._redeSocial.repPostagens.postagens.)
+                    
             }
             enter_para_continuar()
             limpar_tela()

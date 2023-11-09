@@ -281,7 +281,7 @@ class App {
                     let textoPostagem = input("Texto da Postagem: ");
                     let nomeperfildaPostagem = input("Qual o nome do Perfil?: ");
                     let hashtagsdaPostagem = input("Escreva a(s) hashtags a serem cadastradas precedidas de #: ");
-                    let arrayhashtagsdaPostagem = hashtagsdaPostagem.split(" #");
+                    let arrayhashtagsdaPostagem = hashtagsdaPostagem.split("# ");
                     let visualizacoesdaPostagem = parseInt(input("Quantas visualizações: "));
                     let perfildaPostagem = this._redeSocial.consultarPerfil(undefined, nomeperfildaPostagem, undefined);
                     let novaPostagem = new PostagemAvancada(idPostagem, textoPostagem, 0, 0, new Date(), perfildaPostagem, arrayhashtagsdaPostagem, visualizacoesdaPostagem);
