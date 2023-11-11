@@ -96,11 +96,12 @@ class Postagem {
 }
 //1) d)
 class PostagemAvancada extends Postagem {
+    //let PostagemAvancada: PostagemAvancada = new PostagemAvancada()
     private _hashtags: string[] = [];
     private _visualizacoesRestantes: number;
 
-    constructor(id: number, texto: string, curtidas: number, descurtidas: number, data: Date, perfil: Perfil, _hashtags: string[], _visualizacoesRestantes: number) { 
-        super(id, texto, curtidas, descurtidas, data, perfil);
+    constructor(_id: number, _texto: string, _curtidas: number, _descurtidas: number, _data: Date, _perfil: Perfil, _hashtags: string[], _visualizacoesRestantes: number) { 
+        super(_id, _texto, _curtidas, _descurtidas, _data, _perfil);
 
         this._hashtags = _hashtags;
         this._visualizacoesRestantes = _visualizacoesRestantes;
@@ -128,12 +129,8 @@ class PostagemAvancada extends Postagem {
         }
     }
 //2) b) iii)
-    decrementarVisualizacoes(Postagem: PostagemAvancada): void {
-        if (this._visualizacoesRestantes > 0) {
-            this._visualizacoesRestantes--
-        } else {
-            console.log("Não é mais possível decrementar visualizações dessa postagem!");
-        }
+    decrementarVisualizacoes(): void {
+        this._visualizacoesRestantes--
     }
 }
 class RepositorioDePerfis {
@@ -156,25 +153,7 @@ class RepositorioDePerfis {
                 }
             }
         }
-    }   
-        //console.log(`Consultando ${id}, ${nome}, ${email}`);
-
-        /*
-        let perfilConsultado: Perfil = null;
-        if(this.perfis.length <= 0) {
-            perfilConsultado = null
-        }
-
-        for (let perfil of this.perfis) {
-            if(perfil.id == id || perfil.nome == nome || perfil.email == email) {
-                perfilConsultado = perfil;
-                break;
-            }
-        }
-        return perfilConsultado
     }
-
-*/
 }
 class RepositorioDePostagens {
 // 04) a)
@@ -198,7 +177,6 @@ class RepositorioDePostagens {
         return postagensFiltradas
     }
 }
-
 class RedeSocial {
 //05) a)
     private _repPerfis: RepositorioDePerfis = new RepositorioDePerfis();
@@ -254,9 +232,23 @@ class RedeSocial {
             postagemProcurada[0].descurtir();
         }
     }
-} 
+
+    decrementarVisualizacoes(Postagem: PostagemAvancada): void {
+        if(Postagem.visualizacoesRestantes > 0) {
+            Postagem.decrementarVisualizacoes()
+        }
+    }
+    /*
+    exibirPostagensPorPerfil(id: number): Postagem[] {
+        let postagensdoPerfil: Postagem[] = this._repPostagens.consultar(id, undefined, undefined, undefined)
+        for (let postagem: PostagemAvancada of postagensdoPerfil) {
+            this.decrementarVisualizacoes(postagem)
+        }
+    }
+    */
+}
 class App {
-    private _redeSocial: RedeSocial = new RedeSocial
+    private _redeSocial: RedeSocial = new RedeSocial;
     exibirmenu(): void {
         let opcao: string = "";
         do {
@@ -271,7 +263,7 @@ class App {
                         '6 - Descutir\n' +
                         '7 - Decrementar Visualizações\n' +
                         '8 - Exibir Postagens por Perfil\n' +
-                        '9 - Exibir Postagens por Hashtag')
+                        '9 - Exibir Postagens por Hashtag');
             opcao = input("Opção: ");
             switch (opcao) {
                 case "1":
@@ -280,7 +272,7 @@ class App {
                     let nomePerfil: string = input("Nome do Perfil: ");
                     let emailPerfil: string = input("Email do Perfil: ");
                     let novoperfil: Perfil = new Perfil(idPerfil, nomePerfil, emailPerfil);
-                    this._redeSocial.incluirPerfil(novoperfil)
+                    this._redeSocial.incluirPerfil(novoperfil);
                     console.log(`Perfil ${novoperfil.nome} incluído com sucesso!`);
                     break;
                 case "2":
@@ -288,7 +280,7 @@ class App {
                     let idConsulta: number = Number(input("ID da Consulta: "));
                     let nomeConsulta: string = input("Nome da Consulta: ");
                     let emailConsulta: string = input("Email da Consulta: ");
-                    let perfilConsultado = this._redeSocial.consultarPerfil(idConsulta, nomeConsulta, emailConsulta)
+                    let perfilConsultado = this._redeSocial.consultarPerfil(idConsulta, nomeConsulta, emailConsulta);
                     if(perfilConsultado != null) {
                         console.log(`Perfil com ID ${perfilConsultado.id}, nome ${perfilConsultado.nome} e email ${perfilConsultado.email} encontrado!`);
                     } else {
@@ -300,45 +292,47 @@ class App {
                     let idPostagem: number = parseInt(input("ID da Postagem: "));
                     let textoPostagem: string = input("Texto da Postagem: ");
                     let nomeperfildaPostagem: string = input("Qual o nome do Perfil?: ");
-                    let hashtagsdaPostagem: string = input("Escreva a(s) hashtags a serem cadastradas precedidas de #: ")
-                    let arrayhashtagsdaPostagem: string[] = hashtagsdaPostagem.split(" #")
+                    let hashtagsdaPostagem: string = input("Escreva a(s) hashtags a serem cadastradas precedidas de #: ");
+                    let arrayhashtagsdaPostagem: string[] = hashtagsdaPostagem.split(" #");
                     let visualizacoesdaPostagem: number = parseInt(input("Quantas visualizações: "))
-                    let perfildaPostagem: Perfil = this._redeSocial.consultarPerfil(undefined, nomeperfildaPostagem, undefined)
-                    let novaPostagem: PostagemAvancada = new PostagemAvancada(idPostagem, textoPostagem, 0, 0, new Date(), perfildaPostagem, arrayhashtagsdaPostagem, visualizacoesdaPostagem)
+                    let perfildaPostagem: Perfil = this._redeSocial.consultarPerfil(undefined, nomeperfildaPostagem, undefined);
+                    let novaPostagem: PostagemAvancada = new PostagemAvancada(idPostagem, textoPostagem, 0, 0, new Date(), perfildaPostagem, arrayhashtagsdaPostagem, visualizacoesdaPostagem);
                     this._redeSocial.incluirPostagem(novaPostagem);
                     console.log(`Postagem do Perfil ${novaPostagem.perfil.nome} incluída com sucesso`);
                     break;
                 case "4":
                     console.log("4 - Consultar Postagem");
-                    let idPostagemConsultada: number = parseInt(input("ID da Postagem a ser consultada: "))
-                    let textoPostagemConsultada: string = input("Texto da Postagem a ser consultada: ")
-                    let hashtagPostagemConsultada: string = input("Hashtag da Postagem a ser consultada: ")
-                    let nomePerfilPostagemConsultada: string = input("Nome do Perfil da Postagem a ser consultada: ")
-                    let perfildaPostagemConsultada: Perfil = this._redeSocial.consultarPerfil(undefined, nomePerfilPostagemConsultada, undefined)
-                    let postagemConsultada = this._redeSocial.consultarPostagens(idPostagemConsultada, textoPostagemConsultada, hashtagPostagemConsultada, perfildaPostagemConsultada)
-                    console.log(postagemConsultada)
+                    let idPostagemConsultada: number = parseInt(input("ID da Postagem a ser consultada: "));
+                    let textoPostagemConsultada: string = input("Texto da Postagem a ser consultada: ");
+                    let hashtagPostagemConsultada: string = input("Hashtag da Postagem a ser consultada: ");
+                    let nomePerfilPostagemConsultada: string = input("Nome do Perfil da Postagem a ser consultada: ");
+                    let perfildaPostagemConsultada: Perfil = this._redeSocial.consultarPerfil(undefined, nomePerfilPostagemConsultada, undefined);
+                    let postagemConsultada = this._redeSocial.consultarPostagens(idPostagemConsultada, textoPostagemConsultada, hashtagPostagemConsultada, perfildaPostagemConsultada);
+                    console.log(postagemConsultada);
                     break;
                 case "5":
                     console.log("5 - Curtir Postagem");
-                    let idCurtirPostagem: number = parseInt(input("ID da Postagem a ser curtida: "))
-                    this._redeSocial.curtir(idCurtirPostagem)
-                    console.log(`Postagem curtida ♥`)
+                    let idCurtirPostagem: number = parseInt(input("ID da Postagem a ser curtida: "));
+                    this._redeSocial.curtir(idCurtirPostagem);
+                    console.log(`Postagem curtida ♥`);
                     break;
 
                 case "6":
                     console.log("6 - Descurtir Postagem");
-                    let idDescurtirPostagem: number = parseInt(input("ID da Postagem a ser descurtida: "))
-                    this._redeSocial.descurtir(idDescurtirPostagem)
-                    console.log(`Postagem descurtida ☹`)
+                    let idDescurtirPostagem: number = parseInt(input("ID da Postagem a ser descurtida: "));
+                    this._redeSocial.descurtir(idDescurtirPostagem);
+                    console.log(`Postagem descurtida ☹`);
                     break;
                 case "7":
-                    console.log("7 - Decrementar Visualizações");
+                    console.log("7 Exibir Postagens Por Perfil");
+                    //let postagensPorPerfil:
+
                     break;
             }
             enter_para_continuar()
             limpar_tela()
         } while (opcao != "0");
-            console.log('Até Logo!')
+            console.log('Até Logo!');
     }
 }
 
@@ -349,11 +343,11 @@ function main() {
 
 main();
 
-export function limpar_tela(){
+function limpar_tela(){
     console.clear()
 }
 
-export function enter_para_continuar(){
+function enter_para_continuar(){
     input('Press <enter> to continue ...')
     limpar_tela()
 }
