@@ -15,6 +15,7 @@
     "readline-sync": "^1.4.10"
   },
   "devDependencies": {
+    "@types/node": "^20.9.0",
     "@types/prompt-sync": "^4.2.2"
   }
 }

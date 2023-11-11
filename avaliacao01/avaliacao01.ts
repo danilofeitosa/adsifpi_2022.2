@@ -1,4 +1,6 @@
 import prompt from 'prompt-sync';
+import * as fs from 'fs';
+import { log } from 'console';
 
 let input = prompt();
 
@@ -249,6 +251,8 @@ class RedeSocial {
 }
 class App {
     private _redeSocial: RedeSocial = new RedeSocial;
+    private CAMINHO_ARQUIVO: string = "./backup.txt";
+
     exibirmenu(): void {
         let opcao: string = "";
         do {
@@ -334,6 +338,19 @@ class App {
         } while (opcao != "0");
             console.log('Até Logo!');
     }
+    /*
+    salvarPerfisEmArquivo() {
+        console.log("Iniciando a gravação em arquivo.")
+        let stringRedeSocial: string = "";
+        let linha: string = "";
+
+        for (let perfil of this._redeSocial.repPerfis.perfis) {
+            if(this._redeSocial.repPerfis.perfis.) {
+
+            }
+        }
+    }
+    */
 }
 
 function main() {
