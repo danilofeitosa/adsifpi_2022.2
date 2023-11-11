@@ -9,13 +9,13 @@ class Perfil {
     private _id: number;
     private _nome: string;
     private _email: string;
-    private _postagens: Postagem[] = [];
+    private _postagens: Postagem[];
 
     constructor (_id: number, _nome: string, _email: string) {
         this._id = _id;
         this._nome = _nome;
         this._email = _email;
-        //this._postagens = []; Comentei para testar se essa linha ainda seria necessario
+        this._postagens = [];
     }
 
     get id(): number {
@@ -164,16 +164,23 @@ class RepositorioDePostagens {
     }
 // 04) b)
     incluir(postagem: Postagem): void { //Ao invés de colocar postagem: Postagem, posso colocar postagem: PostagemAvancada? Caso não, como faço para distinguir oq seria avancada ou não?
-        this._postagens.push(postagem)
+        this._postagens.push(postagem);
         
+        let perfilAssociado = new Perfil(postagem.id, postagem.perfil.nome, postagem.perfil.email)
+        if (perfilAssociado) {
+            perfilAssociado.postagens.push(postagem);
+        }
+        console.log(`TESTE: ${perfilAssociado.postagens[0]}`)
+        
+        /*
         let novoperfil: Perfil = new Perfil(postagem.id, postagem.perfil.nome, postagem.perfil.email);
         novoperfil.postagens.push(postagem)
         console.log(`Teste: ${novoperfil.postagens[0]}`) //R: Teste [object Object]
-
+        */
         //Estou tentando inserir essa postagem no array dentro da classe Perfil e não estou conseguindo!
     }
 // 04) c)
-    consultar(id?: number, texto?: string, hashtag?: string, perfil?: Perfil): Postagem[] | null {
+    consultar(id?: number, texto?: string, hashtag?: string, perfil?: Perfil): Postagem[] | null { //Sobre a hashtag, precisofazer essa diferenciação sobre Postagem e Postagem Avancada ou posso adotar tudo como PostagemAvancada?
         let postagensFiltradas: Postagem[] = []
         for (let postagemConsultada of this._postagens) {
             if (postagemConsultada.id == id || postagemConsultada.texto == texto || postagemConsultada.perfil == perfil) {
@@ -302,11 +309,11 @@ class App {
                     let idPostagem: number = parseInt(input("ID da Postagem: "));
                     let textoPostagem: string = input("Texto da Postagem: ");
                     let nomeperfildaPostagem: string = input("Qual o nome do Perfil?: ");
-                    let hashtagsdaPostagem: string = input("Escreva a(s) hashtags a serem cadastradas precedidas de #.Deixe um espaço entre as hashtags: ");
+                    let hashtagsdaPostagem: string = input("Escreva a(s) hashtags a serem cadastradas precedidas de #. Deixe um espaço entre as hashtags: ");
                     let arrayhashtagsdaPostagem: string[] = hashtagsdaPostagem.split(" ");
                     //let visualizacoesdaPostagem: number = parseInt(input("Quantas visualizações: "))
                     let perfildaPostagem: Perfil = this._redeSocial.consultarPerfil(undefined, nomeperfildaPostagem, undefined);
-                    let novaPostagem: PostagemAvancada = new PostagemAvancada(idPostagem, textoPostagem, /*0, 0,*/ new Date(), perfildaPostagem, arrayhashtagsdaPostagem/*, visualizacoesdaPostagem*/);
+                    let novaPostagem: PostagemAvancada = new PostagemAvancada(idPostagem, textoPostagem, /*0, 0,*/ new Date(), perfildaPostagem, arrayhashtagsdaPostagem /*, visualizacoesdaPostagem */);
                     //Coloquei as curtidas e descutidas e visualizaçõesdaPostagem como comentário, pq estou em dúvida se eu preciso pedir ao usuário essa informação, ou seja, estar dentro do construtor!!!!
                     this._redeSocial.incluirPostagem(novaPostagem);
                     console.log(`Postagem do Perfil ${novaPostagem.perfil.nome} incluída com sucesso`);

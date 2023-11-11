@@ -8,11 +8,10 @@ let input = (0, prompt_sync_1.default)();
 //1) a)
 class Perfil {
     constructor(_id, _nome, _email) {
-        this._postagens = [];
         this._id = _id;
         this._nome = _nome;
         this._email = _email;
-        //this._postagens = []; Comentei para testar se essa linha ainda seria necessario
+        this._postagens = [];
     }
     get id() {
         return this._id;
@@ -149,9 +148,16 @@ class RepositorioDePostagens {
     // 04) b)
     incluir(postagem) {
         this._postagens.push(postagem);
-        let novoperfil = new Perfil(postagem.id, postagem.perfil.nome, postagem.perfil.email);
-        novoperfil.postagens.push(postagem);
-        console.log(`Teste: ${novoperfil.postagens[0]}`); //R: Teste [object Object]
+        let perfilAssociado = new Perfil(postagem.id, postagem.perfil.nome, postagem.perfil.email);
+        if (perfilAssociado) {
+            perfilAssociado.postagens.push(postagem);
+        }
+        console.log(`TESTE: ${perfilAssociado.postagens[0]}`);
+        /*
+        let novoperfil: Perfil = new Perfil(postagem.id, postagem.perfil.nome, postagem.perfil.email);
+        novoperfil.postagens.push(postagem)
+        console.log(`Teste: ${novoperfil.postagens[0]}`) //R: Teste [object Object]
+        */
         //Estou tentando inserir essa postagem no array dentro da classe Perfil e não estou conseguindo!
     }
     // 04) c)
@@ -294,11 +300,11 @@ class App {
                     let idPostagem = parseInt(input("ID da Postagem: "));
                     let textoPostagem = input("Texto da Postagem: ");
                     let nomeperfildaPostagem = input("Qual o nome do Perfil?: ");
-                    let hashtagsdaPostagem = input("Escreva a(s) hashtags a serem cadastradas precedidas de #.Deixe um espaço entre as hashtags: ");
+                    let hashtagsdaPostagem = input("Escreva a(s) hashtags a serem cadastradas precedidas de #. Deixe um espaço entre as hashtags: ");
                     let arrayhashtagsdaPostagem = hashtagsdaPostagem.split(" ");
                     //let visualizacoesdaPostagem: number = parseInt(input("Quantas visualizações: "))
                     let perfildaPostagem = this._redeSocial.consultarPerfil(undefined, nomeperfildaPostagem, undefined);
-                    let novaPostagem = new PostagemAvancada(idPostagem, textoPostagem, /*0, 0,*/ new Date(), perfildaPostagem, arrayhashtagsdaPostagem /*, visualizacoesdaPostagem*/);
+                    let novaPostagem = new PostagemAvancada(idPostagem, textoPostagem, /*0, 0,*/ new Date(), perfildaPostagem, arrayhashtagsdaPostagem /*, visualizacoesdaPostagem */);
                     //Coloquei as curtidas e descutidas e visualizaçõesdaPostagem como comentário, pq estou em dúvida se eu preciso pedir ao usuário essa informação, ou seja, estar dentro do construtor!!!!
                     this._redeSocial.incluirPostagem(novaPostagem);
                     console.log(`Postagem do Perfil ${novaPostagem.perfil.nome} incluída com sucesso`);
