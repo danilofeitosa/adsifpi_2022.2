@@ -47,13 +47,9 @@ class Postagem {
         this._id = _id;
         this._texto = _texto;
         this._curtidas = _curtidas;
-        // this._curtidas = 0;
         this._descurtidas = _descurtidas;
-        // this._descurtidas = 0;
         this._data = _data;
-        // this._data = new Date;
         this._perfil = _perfil;
-        // this._perfil = perfil;
     }
 
     get id(): number {
