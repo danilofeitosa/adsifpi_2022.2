@@ -3,16 +3,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.enter_para_continuar = exports.limpar_tela = void 0;
 const prompt_sync_1 = __importDefault(require("prompt-sync"));
 let input = (0, prompt_sync_1.default)();
 //1) a)
 class Perfil {
     constructor(_id, _nome, _email) {
+        this._postagens = [];
         this._id = _id;
         this._nome = _nome;
         this._email = _email;
-        this._postagens = [];
+        //this._postagens = []; Comentei para testar se essa linha ainda seria necessario
     }
     get id() {
         return this._id;
@@ -30,17 +30,16 @@ class Perfil {
 }
 //1) b)
 class Postagem {
-    constructor(_id, _texto, _curtidas, _descurtidas, _data, _perfil) {
+    constructor(_id, _texto, /*_curtidas: number, _descurtidas: number,*/ _data, _perfil) {
+        this._curtidas = 0; //Como não irei mais pedir ao usuário, ele será inicializado com 0.
+        this._descurtidas = 0; //Como não irei mais pedir ao usuário, ele será inicializado com 0.
         this._id = _id;
         this._texto = _texto;
-        this._curtidas = _curtidas;
-        // this._curtidas = 0;
-        this._descurtidas = _descurtidas;
-        // this._descurtidas = 0;
+        //this._curtidas = _curtidas;
+        //this._descurtidas = _descurtidas;
+        //Coloquei as curtidas e descutidas como comentário, pq estou em dúvida se eu preciso pedir ao usuário essa informação, ou seja, estar dentro do construtor!!!!
         this._data = _data;
-        // this._data = new Date;
         this._perfil = _perfil;
-        // this._perfil = perfil;
     }
     get id() {
         return this._id;
@@ -80,11 +79,14 @@ class Postagem {
 }
 //1) d)
 class PostagemAvancada extends Postagem {
-    constructor(id, texto, curtidas, descurtidas, data, perfil, _hashtags, _visualizacoesRestantes) {
-        super(id, texto, curtidas, descurtidas, data, perfil);
+    constructor(_id, _texto, /*_curtidas: number, _descurtidas: number,*/ _data, _perfil, _hashtags /*, _visualizacoesRestantes: number*/) {
+        super(_id, _texto, /*_curtidas, _descurtidas,*/ _data, _perfil);
         this._hashtags = [];
+        this._visualizacoesRestantes = 10; //Como não irei mais pedir ao usuário, ele será inicializado com 10 por padrão da Rede Social.
+        //Coloquei as curtidas e descutidas como comentário, pq estou em dúvida se eu preciso pedir ao usuário essa informação, ou seja, estar dentro do construtor!!!!
         this._hashtags = _hashtags;
-        this._visualizacoesRestantes = _visualizacoesRestantes;
+        //this._visualizacoesRestantes = _visualizacoesRestantes;
+        //O mesmo caso para visualizações restantes!
     }
     get hashtag() {
         return this._hashtags;
@@ -108,36 +110,14 @@ class PostagemAvancada extends Postagem {
         }
     }
     //2) b) iii)
-    decrementarVisualizacoes(Postagem) {
-        if (this._visualizacoesRestantes > 0) {
-            this._visualizacoesRestantes--;
-        }
-        else {
-            console.log("Não é mais possível decrementar visualizações dessa postagem!");
-        }
+    decrementarVisualizacoes() {
+        this._visualizacoesRestantes--;
     }
 }
 class RepositorioDePerfis {
     constructor() {
         // 03) a)
         this._perfis = [];
-        //console.log(`Consultando ${id}, ${nome}, ${email}`);
-        /*
-        let perfilConsultado: Perfil = null;
-        if(this.perfis.length <= 0) {
-            perfilConsultado = null
-        }
-
-        for (let perfil of this.perfis) {
-            if(perfil.id == id || perfil.nome == nome || perfil.email == email) {
-                perfilConsultado = perfil;
-                break;
-            }
-        }
-        return perfilConsultado
-    }
-
-*/
     }
     get perfis() {
         return this._perfis;
@@ -155,6 +135,7 @@ class RepositorioDePerfis {
                 }
             }
         }
+        return null;
     }
 }
 class RepositorioDePostagens {
@@ -168,6 +149,10 @@ class RepositorioDePostagens {
     // 04) b)
     incluir(postagem) {
         this._postagens.push(postagem);
+        let novoperfil = new Perfil(postagem.id, postagem.perfil.nome, postagem.perfil.email);
+        novoperfil.postagens.push(postagem);
+        console.log(`Teste: ${novoperfil.postagens[0]}`); //R: Teste [object Object]
+        //Estou tentando inserir essa postagem no array dentro da classe Perfil e não estou conseguindo!
     }
     // 04) c)
     consultar(id, texto, hashtag, perfil) {
@@ -185,6 +170,14 @@ class RedeSocial {
         //05) a)
         this._repPerfis = new RepositorioDePerfis();
         this._repPostagens = new RepositorioDePostagens();
+        /*
+        exibirPostagensPorPerfil(id: number): Postagem[] {
+            let postagensdoPerfil: Postagem[] = this._repPostagens.consultar(id, undefined, undefined, undefined)
+            for (let postagem: PostagemAvancada of postagensdoPerfil) {
+                this.decrementarVisualizacoes(postagem)
+            }
+        }
+        */
     }
     get repPerfis() {
         return this._repPerfis;
@@ -231,10 +224,29 @@ class RedeSocial {
             postagemProcurada[0].descurtir();
         }
     }
+    decrementarVisualizacoes(Postagem) {
+        if (Postagem.visualizacoesRestantes > 0) {
+            Postagem.decrementarVisualizacoes();
+        }
+    }
 }
 class App {
     constructor() {
         this._redeSocial = new RedeSocial;
+        this.CAMINHO_ARQUIVO = "./backup.txt";
+        /*
+        salvarPerfisEmArquivo() {
+            console.log("Iniciando a gravação em arquivo.")
+            let stringRedeSocial: string = "";
+            let linha: string = "";
+    
+            for (let perfil of this._redeSocial.repPerfis.perfis) {
+                if(this._redeSocial.repPerfis.perfis.) {
+    
+                }
+            }
+        }
+        */
     }
     exibirmenu() {
         let opcao = "";
@@ -248,7 +260,9 @@ class App {
                 '4 - Consultar Postagem\n' +
                 '5 - Curtir\n' +
                 '6 - Descutir\n' +
-                '7 - Decrementar Visualizações\n' +
+                '7 - Exibir Postagens Por Perfil\n' +
+                //'7 - Decrementar Visualizações\n' +
+                //Comentei pq esse método será chamado dentro de outro método e não diretamente pelo usuário
                 '8 - Exibir Postagens por Perfil\n' +
                 '9 - Exibir Postagens por Hashtag');
             opcao = input("Opção: ");
@@ -280,11 +294,12 @@ class App {
                     let idPostagem = parseInt(input("ID da Postagem: "));
                     let textoPostagem = input("Texto da Postagem: ");
                     let nomeperfildaPostagem = input("Qual o nome do Perfil?: ");
-                    let hashtagsdaPostagem = input("Escreva a(s) hashtags a serem cadastradas precedidas de #: ");
-                    let arrayhashtagsdaPostagem = hashtagsdaPostagem.split(" #");
-                    let visualizacoesdaPostagem = parseInt(input("Quantas visualizações: "));
+                    let hashtagsdaPostagem = input("Escreva a(s) hashtags a serem cadastradas precedidas de #.Deixe um espaço entre as hashtags: ");
+                    let arrayhashtagsdaPostagem = hashtagsdaPostagem.split(" ");
+                    //let visualizacoesdaPostagem: number = parseInt(input("Quantas visualizações: "))
                     let perfildaPostagem = this._redeSocial.consultarPerfil(undefined, nomeperfildaPostagem, undefined);
-                    let novaPostagem = new PostagemAvancada(idPostagem, textoPostagem, 0, 0, new Date(), perfildaPostagem, arrayhashtagsdaPostagem, visualizacoesdaPostagem);
+                    let novaPostagem = new PostagemAvancada(idPostagem, textoPostagem, /*0, 0,*/ new Date(), perfildaPostagem, arrayhashtagsdaPostagem /*, visualizacoesdaPostagem*/);
+                    //Coloquei as curtidas e descutidas e visualizaçõesdaPostagem como comentário, pq estou em dúvida se eu preciso pedir ao usuário essa informação, ou seja, estar dentro do construtor!!!!
                     this._redeSocial.incluirPostagem(novaPostagem);
                     console.log(`Postagem do Perfil ${novaPostagem.perfil.nome} incluída com sucesso`);
                     break;
@@ -311,7 +326,8 @@ class App {
                     console.log(`Postagem descurtida ☹`);
                     break;
                 case "7":
-                    console.log("7 - Decrementar Visualizações");
+                    console.log("7 - Exibir Postagens Por Perfil");
+                    //let postagensPorPerfil:
                     break;
             }
             enter_para_continuar();
@@ -328,10 +344,8 @@ main();
 function limpar_tela() {
     console.clear();
 }
-exports.limpar_tela = limpar_tela;
 function enter_para_continuar() {
     input('Press <enter> to continue ...');
     limpar_tela();
 }
-exports.enter_para_continuar = enter_para_continuar;
 //# sourceMappingURL=avaliacao01.js.map

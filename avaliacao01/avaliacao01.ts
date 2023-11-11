@@ -9,13 +9,13 @@ class Perfil {
     private _id: number;
     private _nome: string;
     private _email: string;
-    private _postagens: Postagem[];
+    private _postagens: Postagem[] = [];
 
     constructor (_id: number, _nome: string, _email: string) {
         this._id = _id;
         this._nome = _nome;
         this._email = _email;
-        this._postagens = [];
+        //this._postagens = []; Comentei para testar se essa linha ainda seria necessario
     }
 
     get id(): number {
@@ -38,16 +38,17 @@ class Perfil {
 class Postagem {
     private _id: number;
     private _texto: string;
-    private _curtidas: number;
-    private _descurtidas: number;
+    private _curtidas: number = 0 //Como não irei mais pedir ao usuário, ele será inicializado com 0.
+    private _descurtidas: number = 0 //Como não irei mais pedir ao usuário, ele será inicializado com 0.
     private _data: Date;
     private _perfil: Perfil;
 
-    constructor (_id: number, _texto: string, _curtidas: number, _descurtidas: number, _data: Date, _perfil: Perfil) {
+    constructor (_id: number, _texto: string, /*_curtidas: number, _descurtidas: number,*/ _data: Date, _perfil: Perfil) {
         this._id = _id;
         this._texto = _texto;
-        this._curtidas = _curtidas;
-        this._descurtidas = _descurtidas;
+        //this._curtidas = _curtidas;
+        //this._descurtidas = _descurtidas;
+        //Coloquei as curtidas e descutidas como comentário, pq estou em dúvida se eu preciso pedir ao usuário essa informação, ou seja, estar dentro do construtor!!!!
         this._data = _data;
         this._perfil = _perfil;
     }
@@ -94,15 +95,15 @@ class Postagem {
 }
 //1) d)
 class PostagemAvancada extends Postagem {
-    //let PostagemAvancada: PostagemAvancada = new PostagemAvancada()
     private _hashtags: string[] = [];
-    private _visualizacoesRestantes: number;
+    private _visualizacoesRestantes: number = 10; //Como não irei mais pedir ao usuário, ele será inicializado com 10 por padrão da Rede Social.
 
-    constructor(_id: number, _texto: string, _curtidas: number, _descurtidas: number, _data: Date, _perfil: Perfil, _hashtags: string[], _visualizacoesRestantes: number) { 
-        super(_id, _texto, _curtidas, _descurtidas, _data, _perfil);
-
+    constructor(_id: number, _texto: string, /*_curtidas: number, _descurtidas: number,*/ _data: Date, _perfil: Perfil, _hashtags: string[]/*, _visualizacoesRestantes: number*/) { 
+        super(_id, _texto, /*_curtidas, _descurtidas,*/ _data, _perfil);
+        //Coloquei as curtidas e descutidas como comentário, pq estou em dúvida se eu preciso pedir ao usuário essa informação, ou seja, estar dentro do construtor!!!!
         this._hashtags = _hashtags;
-        this._visualizacoesRestantes = _visualizacoesRestantes;
+        //this._visualizacoesRestantes = _visualizacoesRestantes;
+        //O mesmo caso para visualizações restantes!
     }
 
     get hashtag(): string[] {
@@ -151,6 +152,7 @@ class RepositorioDePerfis {
                 }
             }
         }
+        return null;
     }
 }
 class RepositorioDePostagens {
@@ -161,8 +163,14 @@ class RepositorioDePostagens {
         return this._postagens;
     }
 // 04) b)
-    incluir(postagem: Postagem): void {
+    incluir(postagem: Postagem): void { //Ao invés de colocar postagem: Postagem, posso colocar postagem: PostagemAvancada? Caso não, como faço para distinguir oq seria avancada ou não?
         this._postagens.push(postagem)
+        
+        let novoperfil: Perfil = new Perfil(postagem.id, postagem.perfil.nome, postagem.perfil.email);
+        novoperfil.postagens.push(postagem)
+        console.log(`Teste: ${novoperfil.postagens[0]}`) //R: Teste [object Object]
+
+        //Estou tentando inserir essa postagem no array dentro da classe Perfil e não estou conseguindo!
     }
 // 04) c)
     consultar(id?: number, texto?: string, hashtag?: string, perfil?: Perfil): Postagem[] | null {
@@ -261,7 +269,9 @@ class App {
                         '4 - Consultar Postagem\n' +
                         '5 - Curtir\n' +
                         '6 - Descutir\n' +
-                        '7 - Decrementar Visualizações\n' +
+                        '7 - Exibir Postagens Por Perfil\n' +
+                        //'7 - Decrementar Visualizações\n' +
+                        //Comentei pq esse método será chamado dentro de outro método e não diretamente pelo usuário
                         '8 - Exibir Postagens por Perfil\n' +
                         '9 - Exibir Postagens por Hashtag');
             opcao = input("Opção: ");
@@ -292,11 +302,12 @@ class App {
                     let idPostagem: number = parseInt(input("ID da Postagem: "));
                     let textoPostagem: string = input("Texto da Postagem: ");
                     let nomeperfildaPostagem: string = input("Qual o nome do Perfil?: ");
-                    let hashtagsdaPostagem: string = input("Escreva a(s) hashtags a serem cadastradas precedidas de #: ");
-                    let arrayhashtagsdaPostagem: string[] = hashtagsdaPostagem.split(" #");
-                    let visualizacoesdaPostagem: number = parseInt(input("Quantas visualizações: "))
+                    let hashtagsdaPostagem: string = input("Escreva a(s) hashtags a serem cadastradas precedidas de #.Deixe um espaço entre as hashtags: ");
+                    let arrayhashtagsdaPostagem: string[] = hashtagsdaPostagem.split(" ");
+                    //let visualizacoesdaPostagem: number = parseInt(input("Quantas visualizações: "))
                     let perfildaPostagem: Perfil = this._redeSocial.consultarPerfil(undefined, nomeperfildaPostagem, undefined);
-                    let novaPostagem: PostagemAvancada = new PostagemAvancada(idPostagem, textoPostagem, 0, 0, new Date(), perfildaPostagem, arrayhashtagsdaPostagem, visualizacoesdaPostagem);
+                    let novaPostagem: PostagemAvancada = new PostagemAvancada(idPostagem, textoPostagem, /*0, 0,*/ new Date(), perfildaPostagem, arrayhashtagsdaPostagem/*, visualizacoesdaPostagem*/);
+                    //Coloquei as curtidas e descutidas e visualizaçõesdaPostagem como comentário, pq estou em dúvida se eu preciso pedir ao usuário essa informação, ou seja, estar dentro do construtor!!!!
                     this._redeSocial.incluirPostagem(novaPostagem);
                     console.log(`Postagem do Perfil ${novaPostagem.perfil.nome} incluída com sucesso`);
                     break;
@@ -324,7 +335,7 @@ class App {
                     console.log(`Postagem descurtida ☹`);
                     break;
                 case "7":
-                    console.log("7 Exibir Postagens Por Perfil");
+                    console.log("7 - Exibir Postagens Por Perfil");
                     //let postagensPorPerfil:
 
                     break;
