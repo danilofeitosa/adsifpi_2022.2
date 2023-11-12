@@ -148,24 +148,22 @@ class RepositorioDePostagens {
     // 04) b)
     incluir(postagem) {
         this._postagens.push(postagem);
-        let perfilAssociado = new Perfil(postagem.id, postagem.perfil.nome, postagem.perfil.email);
-        if (perfilAssociado) {
-            perfilAssociado.postagens.push(postagem);
-        }
-        console.log(`TESTE: ${perfilAssociado.postagens[0]}`);
-        /*
-        let novoperfil: Perfil = new Perfil(postagem.id, postagem.perfil.nome, postagem.perfil.email);
-        novoperfil.postagens.push(postagem)
-        console.log(`Teste: ${novoperfil.postagens[0]}`) //R: Teste [object Object]
-        */
-        //Estou tentando inserir essa postagem no array dentro da classe Perfil e não estou conseguindo!
+        let perfilAssociado = postagem.perfil;
+        perfilAssociado.postagens.push(postagem);
     }
     // 04) c)
     consultar(id, texto, hashtag, perfil) {
         let postagensFiltradas = [];
         for (let postagemConsultada of this._postagens) {
-            if (postagemConsultada.id == id || postagemConsultada.texto == texto || postagemConsultada.perfil == perfil) {
-                postagensFiltradas.push(postagemConsultada);
+            if (postagemConsultada instanceof PostagemAvancada) {
+                if (postagemConsultada.id == id || postagemConsultada.texto == texto || postagemConsultada.existeHashtag(hashtag) || postagemConsultada.perfil == perfil) {
+                    postagensFiltradas.push(postagemConsultada);
+                }
+            }
+            else {
+                if (postagemConsultada.id == id || postagemConsultada.texto == texto || postagemConsultada.perfil == perfil) {
+                    postagensFiltradas.push(postagemConsultada);
+                }
             }
         }
         return postagensFiltradas;
@@ -176,14 +174,6 @@ class RedeSocial {
         //05) a)
         this._repPerfis = new RepositorioDePerfis();
         this._repPostagens = new RepositorioDePostagens();
-        /*
-        exibirPostagensPorPerfil(id: number): Postagem[] {
-            let postagensdoPerfil: Postagem[] = this._repPostagens.consultar(id, undefined, undefined, undefined)
-            for (let postagem: PostagemAvancada of postagensdoPerfil) {
-                this.decrementarVisualizacoes(postagem)
-            }
-        }
-        */
     }
     get repPerfis() {
         return this._repPerfis;
@@ -235,6 +225,33 @@ class RedeSocial {
             Postagem.decrementarVisualizacoes();
         }
     }
+    obterPostagensPorPerfil(id) {
+        let postagensdoPerfil = this._repPostagens.consultar(id, undefined, undefined, undefined);
+        //Verificar se pode ser exibida
+        let postagensFiltradas = postagensdoPerfil.filter((post) => {
+            if (post instanceof PostagemAvancada) {
+                return post.visualizacoesRestantes > 0;
+            }
+            return true;
+        });
+        return postagensFiltradas;
+    }
+    obterPostagensPorHashtag(hashtag) {
+        // Obter postagens com a hashtag
+        let postagens = this.repPostagens.consultar(undefined, undefined, hashtag, undefined);
+        // Verificar se pode ser exibida
+        let postagensFiltradas = [];
+        postagens.forEach((post) => {
+            if (post instanceof PostagemAvancada) {
+                if (post.visualizacoesRestantes > 0) {
+                    postagensFiltradas.push(post);
+                }
+                ;
+            }
+            ;
+        });
+        return postagensFiltradas;
+    }
 }
 class App {
     constructor() {
@@ -266,11 +283,8 @@ class App {
                 '4 - Consultar Postagem\n' +
                 '5 - Curtir\n' +
                 '6 - Descutir\n' +
-                '7 - Exibir Postagens Por Perfil\n' +
-                //'7 - Decrementar Visualizações\n' +
-                //Comentei pq esse método será chamado dentro de outro método e não diretamente pelo usuário
-                '8 - Exibir Postagens por Perfil\n' +
-                '9 - Exibir Postagens por Hashtag');
+                '7 - Exibir Postagens por Perfil\n' +
+                '8 - Exibir Postagens por Hashtag');
             opcao = input("Opção: ");
             switch (opcao) {
                 case "1":
@@ -284,10 +298,7 @@ class App {
                     break;
                 case "2":
                     console.log("2 - Consultar Perfil");
-                    let idConsulta = Number(input("ID da Consulta: "));
-                    let nomeConsulta = input("Nome da Consulta: ");
-                    let emailConsulta = input("Email da Consulta: ");
-                    let perfilConsultado = this._redeSocial.consultarPerfil(idConsulta, nomeConsulta, emailConsulta);
+                    let perfilConsultado = this.pedirPerfil();
                     if (perfilConsultado != null) {
                         console.log(`Perfil com ID ${perfilConsultado.id}, nome ${perfilConsultado.nome} e email ${perfilConsultado.email} encontrado!`);
                     }
@@ -301,10 +312,16 @@ class App {
                     let textoPostagem = input("Texto da Postagem: ");
                     let nomeperfildaPostagem = input("Qual o nome do Perfil?: ");
                     let hashtagsdaPostagem = input("Escreva a(s) hashtags a serem cadastradas precedidas de #. Deixe um espaço entre as hashtags: ");
-                    let arrayhashtagsdaPostagem = hashtagsdaPostagem.split(" ");
-                    //let visualizacoesdaPostagem: number = parseInt(input("Quantas visualizações: "))
+                    let arrayhashtagsdaPostagem = hashtagsdaPostagem.replace("#", "").split(" ");
                     let perfildaPostagem = this._redeSocial.consultarPerfil(undefined, nomeperfildaPostagem, undefined);
-                    let novaPostagem = new PostagemAvancada(idPostagem, textoPostagem, /*0, 0,*/ new Date(), perfildaPostagem, arrayhashtagsdaPostagem /*, visualizacoesdaPostagem */);
+                    let avancada = arrayhashtagsdaPostagem.length > 0;
+                    let novaPostagem;
+                    if (avancada) { // Verificando se tem hashtag na postagem
+                        novaPostagem = new PostagemAvancada(idPostagem, textoPostagem, /*0, 0,*/ new Date(), perfildaPostagem, arrayhashtagsdaPostagem /*, visualizacoesdaPostagem */);
+                    }
+                    else {
+                        novaPostagem = new Postagem(idPostagem, textoPostagem, /*0, 0,*/ new Date(), perfildaPostagem /*, visualizacoesdaPostagem */);
+                    }
                     //Coloquei as curtidas e descutidas e visualizaçõesdaPostagem como comentário, pq estou em dúvida se eu preciso pedir ao usuário essa informação, ou seja, estar dentro do construtor!!!!
                     this._redeSocial.incluirPostagem(novaPostagem);
                     console.log(`Postagem do Perfil ${novaPostagem.perfil.nome} incluída com sucesso`);
@@ -333,13 +350,53 @@ class App {
                     break;
                 case "7":
                     console.log("7 - Exibir Postagens Por Perfil");
-                    //let postagensPorPerfil:
+                    //Pedir perfil para o usuário
+                    let perfilDesejado = this.pedirPerfil();
+                    if (perfilDesejado == null) {
+                        break;
+                    }
+                    let idPerfilDesejado = perfilDesejado.id;
+                    let postagensDoPerfilDesejado = this._redeSocial.obterPostagensPorPerfil(idPerfilDesejado);
+                    postagensDoPerfilDesejado.forEach((post) => {
+                        this.exibirPostagem(post);
+                    });
+                    break;
+                case "8":
+                    console.log("8 - Exibir Postagens Por Hashtag");
+                    // Pedir hashtag para o usuário
+                    let hashtagDesejada = input("Digite a hashtag desejada com #: ").replace("#", "");
+                    let postagens = this._redeSocial.obterPostagensPorHashtag(hashtagDesejada);
+                    postagens.forEach((post) => {
+                        this.exibirPostagem(post);
+                    });
                     break;
             }
             enter_para_continuar();
             limpar_tela();
         } while (opcao != "0");
         console.log('Até Logo!');
+    }
+    pedirPerfil() {
+        let idConsulta = Number(input("ID da Consulta: "));
+        let nomeConsulta = input("Nome da Consulta: ");
+        let emailConsulta = input("Email da Consulta: ");
+        let perfilConsultado = this._redeSocial.consultarPerfil(idConsulta, nomeConsulta, emailConsulta);
+        return perfilConsultado;
+    }
+    exibirPostagem(post) {
+        console.log(`Exibindo Postagem de ID ${post.id}`);
+        console.log(`Escrita por ${post.perfil.nome} em ${post.data.toISOString()}`);
+        console.log(post.texto);
+        console.log(`${post.curtidas} curtidas - ${post.descurtidas} descurtidas`);
+        if (post instanceof PostagemAvancada) {
+            let hashtagString = "";
+            post.hashtag.forEach((hashtag) => {
+                hashtagString += hashtag + " ";
+            });
+            console.log(`Hashtags: ${hashtagString}`);
+            post.decrementarVisualizacoes();
+            console.log(`${post.visualizacoesRestantes} visualizações restantes.`);
+        }
     }
 }
 function main() {
