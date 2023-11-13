@@ -95,7 +95,7 @@ class Postagem {
 //1) d)
 class PostagemAvancada extends Postagem {
     private _hashtags: string[] = [];
-    private _visualizacoesRestantes: number; //= 10 Como não irei mais pedir ao usuário, ele será inicializado com 10 por padrão da Rede Social.
+    private _visualizacoesRestantes: number;
 
     constructor(_id: number, _texto: string, _curtidas: number, _descurtidas: number, _data: Date, _perfil: Perfil, _hashtags: string[], _visualizacoesRestantes: number) { 
         super(_id, _texto, _curtidas, _descurtidas, _data, _perfil);
@@ -271,15 +271,6 @@ class RedeSocial {
         });
         return postagensFiltradas;
     }
-    /*
-    uploadPerfilCarregado(novoPerfil: Perfil[]): void {
-        this._repPerfis.perfis.push(novoPerfil);
-    }
-
-    uploadPostagemCarregada(novaPostagem: Postagem[] | PostagemAvancada[]): void {
-        this._repPostagens.postagens.push(novaPostagem);
-    }
-    */
 }
 class App {
     private _redeSocial: RedeSocial = new RedeSocial;
@@ -445,7 +436,7 @@ class App {
                 stringPerfis += `${perfil.id}#${perfil.nome}#${perfil.email}\n`
             }
         }
-        // Pela redundância, achei melhor não salvar postagens aqui. Na hora da inicialização irei vincular as postagens aos seus respectivos perfis.
+        // Pela redundância, achei melhor não salvar postagens aqui. Na hora da inicialização tentarei vincular as postagens aos seus respectivos perfis.
         fs.writeFileSync(this.CAMINHO_ARQUIVO_PERFIS, stringPerfis, 'utf-8');
     }
     // Salvando as Postagens no arquivo ../backup_postagens.txt na ordem: id, texto, curtidas, descurtidas, data, perfil, hashtags e visualizaçõesrestantes (estes 2 últimos em caso de postagens avançadas)

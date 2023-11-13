@@ -192,15 +192,6 @@ class RedeSocial {
         //05) a)
         this._repPerfis = new RepositorioDePerfis();
         this._repPostagens = new RepositorioDePostagens();
-        /*
-        uploadPerfilCarregado(novoPerfil: Perfil[]): void {
-            this._repPerfis.perfis.push(novoPerfil);
-        }
-    
-        uploadPostagemCarregada(novaPostagem: Postagem[] | PostagemAvancada[]): void {
-            this._repPostagens.postagens.push(novaPostagem);
-        }
-        */
     }
     get repPerfis() {
         return this._repPerfis;
@@ -439,7 +430,7 @@ class App {
                 stringPerfis += `${perfil.id}#${perfil.nome}#${perfil.email}\n`;
             }
         }
-        // Pela redundância, achei melhor não salvar postagens aqui. Na hora da inicialização irei vincular as postagens aos seus respectivos perfis.
+        // Pela redundância, achei melhor não salvar postagens aqui. Na hora da inicialização tentarei vincular as postagens aos seus respectivos perfis.
         fs.writeFileSync(this.CAMINHO_ARQUIVO_PERFIS, stringPerfis, 'utf-8');
     }
     // Salvando as Postagens no arquivo ../backup_postagens.txt na ordem: id, texto, curtidas, descurtidas, data, perfil, hashtags e visualizaçõesrestantes (estes 2 últimos em caso de postagens avançadas)
