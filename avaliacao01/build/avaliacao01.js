@@ -323,7 +323,7 @@ class App {
                     let avancada = arrayhashtagsdaPostagem.length > 0;
                     let novaPostagem;
                     if (avancada) { // Verificando se tem hashtag na postagem
-                        novaPostagem = new PostagemAvancada(idPostagem, textoPostagem, 0, 0, new Date(), perfildaPostagem, arrayhashtagsdaPostagem, 10);
+                        novaPostagem = new PostagemAvancada(idPostagem, textoPostagem, 0, 0, new Date(), perfildaPostagem, arrayhashtagsdaPostagem, 2);
                     }
                     else {
                         novaPostagem = new Postagem(idPostagem, textoPostagem, 0, 0, new Date(), perfildaPostagem);
