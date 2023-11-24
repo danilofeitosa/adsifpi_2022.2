@@ -8,11 +8,17 @@ class Conta {
 		this._numero = numero;
 		this._saldo = saldoInicial;
 	}
-
+// Questao 03
 	sacar(valor: number): void {
-		if (this._saldo >= valor) {
-			this._saldo = this._saldo - valor;
-		}
+		try {
+			if (this._saldo >= valor) {
+				this._saldo = this._saldo - valor;
+			} else {
+				throw new Error(`Saldo insuficiente para realizar o saque solicitado.`);
+			}
+		} catch (e: any) {
+			console.log(`Erro ao sacar: ${e.message}`);
+		};
 	}
 
 	depositar(valor: number): void {
@@ -111,13 +117,17 @@ class Banco {
 			contaConsultada.sacar(valor);
 		}
 	}
-
+// Questao 05 - Incluindo o try catch no metodo transferir.
 	public transferir(numeroCredito: string, numeroDebito: string, valor: number): void {
-		let contaCredito = this.consultar(numeroCredito);
-		let contaDebito = this.consultar(numeroDebito);
+		try{
+			let contaCredito = this.consultar(numeroCredito);
+			let contaDebito = this.consultar(numeroDebito);
 
-		if (contaDebito && contaCredito) {
-			contaDebito.transferir(contaCredito, valor);
+			if (contaDebito && contaCredito) {
+				contaDebito.transferir(contaCredito, valor);
+			}
+		} catch (e: any){
+			console.log(`Erro ao sacar: ${e.message}`);
 		}
 	}
 
@@ -261,6 +271,20 @@ class ContaImposto extends Conta {
 		return this._taxaDesconto;
 	}
 }
+
+// Questao 05
+let banco: Banco = new Banco ();
+banco.inserir(new Conta("001", 100));
+banco.inserir(new Conta("002", 0));
+banco.transferir("002", "001", 150);
+console.log(banco.consultar("001"));
+console.log(banco.consultar("002"));
+
+
+
+
+
+
 
 /*
 let b: Banco = new Banco();

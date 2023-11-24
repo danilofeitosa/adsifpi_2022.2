@@ -1,7 +1,6 @@
 import prompt from "prompt-sync";
 import { Conta, Banco } from "./banco";
 
-
 let input = prompt();
 let b: Banco = new Banco();
 let opcao: String = '';
@@ -16,12 +15,19 @@ do {
     switch (opcao) {
         case "1":
             inserir();
-            break
+            break;
         case "2":
             consultar();
-            break
+            break;
+        case "3":
+            sacar();
+            break;
         case "4": 
-            depositar();            
+            depositar();
+            break;
+        case "6":
+            transferir();
+            break;        
         //...
     }
     input("\nOperação finalizada. Digite <enter>");
@@ -44,16 +50,33 @@ function exibirConta(numero: String): void {
 }
 
 function consultar() {
-    console.log("\Consultar conta\n");
+    console.log("\nConsultar conta\n");
     let numero: string = input('Digite o número da conta:');
     let conta: Conta = b.consultar(numero)
 
     exibirConta(conta.numero)
 }
+
+function sacar() {
+    let numero: string = input('Digite o numero da conta: ');
+    let valor: number = parseFloat(input('Digite o valor: '));
+    b.sacar(numero, valor);
+    exibirConta(numero);
+}
+
 function depositar() {
-    console.log("\Depositar em conta\n");
+    console.log("\nDepositar em conta\n");
     let numero: string = input('Digite o número da conta:');
     let valor: number = parseFloat(input('Digite o valor:'));
     b.depositar(numero, valor);
-    exibirConta(numero)
+    exibirConta(numero);
+}
+
+function transferir() {
+    let contaDebitada: string = input('Digite a conta que sera debitada: ');
+    let contaCreditada: string = input('Digite a conta que sera creditada: ');
+    let valor: number = parseFloat(input('Digite o valor:'));
+    b.transferir(contaCreditada, contaDebitada, valor);
+    exibirConta(contaDebitada);
+    exibirConta(contaCreditada);
 }

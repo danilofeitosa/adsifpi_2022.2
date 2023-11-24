@@ -22,8 +22,15 @@ do {
         case "2":
             consultar();
             break;
+        case "3":
+            sacar();
+            break;
         case "4":
             depositar();
+            break;
+        case "6":
+            transferir();
+            break;
         //...
     }
     input("\nOperação finalizada. Digite <enter>");
@@ -41,16 +48,30 @@ function exibirConta(numero) {
     console.log(`Número: ${b.consultar(numero).numero} - Saldo: ${b.consultar(numero).saldo}`);
 }
 function consultar() {
-    console.log("\Consultar conta\n");
+    console.log("\nConsultar conta\n");
     let numero = input('Digite o número da conta:');
     let conta = b.consultar(numero);
     exibirConta(conta.numero);
 }
+function sacar() {
+    let numero = input('Digite o numero da conta: ');
+    let valor = parseFloat(input('Digite o valor: '));
+    b.sacar(numero, valor);
+    exibirConta(numero);
+}
 function depositar() {
-    console.log("\Depositar em conta\n");
+    console.log("\nDepositar em conta\n");
     let numero = input('Digite o número da conta:');
     let valor = parseFloat(input('Digite o valor:'));
     b.depositar(numero, valor);
     exibirConta(numero);
+}
+function transferir() {
+    let contaDebitada = input('Digite a conta que sera debitada: ');
+    let contaCreditada = input('Digite a conta que sera creditada: ');
+    let valor = parseFloat(input('Digite o valor:'));
+    b.transferir(contaCreditada, contaDebitada, valor);
+    exibirConta(contaDebitada);
+    exibirConta(contaCreditada);
 }
 //# sourceMappingURL=app.js.map
