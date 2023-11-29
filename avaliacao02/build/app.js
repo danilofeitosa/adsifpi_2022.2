@@ -10,14 +10,14 @@ let b = new banco_1.Banco();
 let opcao = '';
 do {
     console.log('\nBem vindo\nDigite uma opção:');
-    console.log('1 - Cadastrar       2 - Consultar saldo       3 - Sacar\n' +
-        '4 - Depositar       5 - Excluir               6 - Transferir\n' +
-        '7 - Totalizações' +
+    console.log('1 - Cadastrar     2 - Consultar saldo     3 - Sacar\n' +
+        '4 - Depositar     5 - Excluir             6 - Transferir\n' +
+        '7 - Render Juros' +
         '0 - Sair\n');
     opcao = input("Opção:");
     switch (opcao) {
         case "1":
-            inserir();
+            cadastrar();
             break;
         case "2":
             consultar();
@@ -28,15 +28,21 @@ do {
         case "4":
             depositar();
             break;
+        case "5":
+            excluir();
+            break;
         case "6":
             transferir();
+            break;
+        case "7":
+            renderJuros();
             break;
         //...
     }
     input("\nOperação finalizada. Digite <enter>");
 } while (opcao != "0");
 console.log("Aplicação encerrada");
-function inserir() {
+function cadastrar() {
     console.log("\nCadastrar conta\n");
     let numero = input('Digite o número da conta:');
     let conta;
@@ -66,12 +72,23 @@ function depositar() {
     b.depositar(numero, valor);
     exibirConta(numero);
 }
+function excluir() {
+    console.log("\nExcluir conta\n");
+    let numero = input("Digite o numero da conta: ");
+    b.excluir(numero);
+}
 function transferir() {
-    let contaDebitada = input('Digite a conta que sera debitada: ');
-    let contaCreditada = input('Digite a conta que sera creditada: ');
+    console.log("\nTransferir valor\n");
+    let contaDebitada = input('Digite a conta a ser debitada: ');
+    let contaCreditada = input('Digite a conta a ser creditada: ');
     let valor = parseFloat(input('Digite o valor:'));
     b.transferir(contaCreditada, contaDebitada, valor);
     exibirConta(contaDebitada);
     exibirConta(contaCreditada);
+}
+function renderJuros() {
+    console.log("\nRender Juros\n");
+    let numero = input("Digite o numero da conta: ");
+    b.renderJuros(numero);
 }
 //# sourceMappingURL=app.js.map

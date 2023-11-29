@@ -32,21 +32,16 @@ class Conta {
     }
     // Questao 03
     sacar(valor) {
-        try {
-            if (this._saldo >= valor) {
-                this._saldo = this._saldo - valor;
-            }
-            else {
-                throw new Error(`Saldo insuficiente para realizar o saque solicitado.`);
-            }
+        if (this._saldo < valor) {
+            throw new Error(`Saldo insuficiente para realizar o saque solicitado.`);
         }
-        catch (e) {
-            console.log(`Erro ao sacar: ${e.message}`);
-        }
-        ;
+        this._saldo = this._saldo - valor;
     }
     depositar(valor) {
         this._saldo = this._saldo + valor;
+    }
+    consultar() {
+        return this.saldo;
     }
     transferir(contaDestino, valor) {
         this.sacar(valor);
@@ -65,6 +60,34 @@ class Conta {
     }
 }
 exports.Conta = Conta;
+class Poupanca extends Conta {
+    constructor(numero, saldo, taxaDeJuros) {
+        super(numero, saldo);
+        this._taxaDeJuros = taxaDeJuros;
+    }
+    renderJuros() {
+        let juros = this.saldo * (this._taxaDeJuros / 100);
+        this.depositar(juros);
+    }
+    get taxaDeJuros() {
+        return this._taxaDeJuros;
+    }
+}
+exports.Poupanca = Poupanca;
+class ContaImposto extends Conta {
+    constructor(numero, saldo, taxaDesconto) {
+        super(numero, saldo);
+        this._taxaDesconto = taxaDesconto;
+    }
+    sacar(valor) {
+        let valorDesconto = this.saldo * this._taxaDesconto / 100;
+        super.sacar(valor + valorDesconto);
+    }
+    get taxaDesconto() {
+        return this._taxaDesconto;
+    }
+}
+exports.ContaImposto = ContaImposto;
 class Banco {
     constructor() {
         this.contas = [];
@@ -231,39 +254,11 @@ class Banco {
     }
 }
 exports.Banco = Banco;
-class Poupanca extends Conta {
-    constructor(numero, saldo, taxaDeJuros) {
-        super(numero, saldo);
-        this._taxaDeJuros = taxaDeJuros;
-    }
-    renderJuros() {
-        let juros = this.saldo * this._taxaDeJuros / 100;
-        this.depositar(juros);
-    }
-    get taxaDeJuros() {
-        return this._taxaDeJuros;
-    }
-}
-exports.Poupanca = Poupanca;
-class ContaImposto extends Conta {
-    constructor(numero, saldo, taxaDesconto) {
-        super(numero, saldo);
-        this._taxaDesconto = taxaDesconto;
-    }
-    sacar(valor) {
-        let valorDesconto = this.saldo * this._taxaDesconto / 100;
-        super.sacar(valor + valorDesconto);
-    }
-    get taxaDesconto() {
-        return this._taxaDesconto;
-    }
-}
-exports.ContaImposto = ContaImposto;
 // Questao 05
-let banco = new Banco();
-banco.inserir(new Conta("001", 100));
-banco.inserir(new Conta("002", 0));
-banco.transferir("002", "001", 150);
-console.log(banco.consultar("001"));
-console.log(banco.consultar("002"));
+let Itau = new Banco();
+Itau.inserir(new Conta("001", 100));
+Itau.inserir(new Conta("002", 0));
+Itau.transferir("002", "001", 150);
+console.log(Itau.consultar("001"));
+console.log(Itau.consultar("002"));
 //# sourceMappingURL=banco.js.map

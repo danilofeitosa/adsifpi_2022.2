@@ -10,19 +10,18 @@ class Conta {
 	}
 // Questao 03
 	sacar(valor: number): void {
-		try {
-			if (this._saldo >= valor) {
-				this._saldo = this._saldo - valor;
-			} else {
-				throw new Error(`Saldo insuficiente para realizar o saque solicitado.`);
-			}
-		} catch (e: any) {
-			console.log(`Erro ao sacar: ${e.message}`);
-		};
+		if (this._saldo < valor) {
+			throw new Error(`Saldo insuficiente para realizar o saque solicitado.`);
+		}
+			this._saldo = this._saldo - valor;
 	}
 
 	depositar(valor: number): void {
 		this._saldo = this._saldo + valor;
+	}
+
+	consultar(): number { //verificar se realmente necessario
+		return this.saldo
 	}
 
 	transferir(contaDestino: Conta, valor: number): void {
@@ -42,9 +41,41 @@ class Conta {
 	get saldo(): number {
 		return this._saldo;
 	}
-
 }
+class Poupanca extends Conta {
+	private _taxaDeJuros: number;
 
+	constructor(numero: string, saldo: number, taxaDeJuros: number) {
+		super(numero, saldo);
+		this._taxaDeJuros = taxaDeJuros;
+	}
+
+	renderJuros(): void {
+		let juros: number = this.saldo * (this._taxaDeJuros / 100);
+		this.depositar(juros);
+	}
+
+	get taxaDeJuros(): number {
+		return this._taxaDeJuros;
+	}
+}
+class ContaImposto extends Conta {
+	private _taxaDesconto: number;
+
+	constructor(numero: string, saldo: number, taxaDesconto: number) {
+		super(numero, saldo);
+		this._taxaDesconto = taxaDesconto;
+	}
+
+	sacar(valor: number): void {
+		let valorDesconto = this.saldo * this._taxaDesconto / 100;
+		super.sacar(valor + valorDesconto);
+	}
+
+	get taxaDesconto(): number {
+		return this._taxaDesconto;
+	}
+}
 class Banco {
 	private contas: Conta[] = [];
 	private CAMINHO_ARQUIVO: string = "./contas.txt";
@@ -84,7 +115,6 @@ class Banco {
 
 	public alterar(conta: Conta): void {
 		let indice: number = this.consultarPorIndice(conta.numero);
-
 		if (indice != -1) {
 			this.contas[indice] = conta;
 		}
@@ -92,7 +122,6 @@ class Banco {
 
 	public excluir(numero: string): void {
 		let indice: number = this.consultarPorIndice(numero);
-
 		if (indice != -1) {
 			for (let i: number = indice; i < this.contas.length; i++) {
 				this.contas[i] = this.contas[i + 1];
@@ -104,7 +133,6 @@ class Banco {
 
 	public depositar(numero: String, valor: number): void {
 		let contaConsultada = this.consultar(numero);
-
 		if (contaConsultada != null) {
 			contaConsultada.depositar(valor);
 		}
@@ -112,7 +140,6 @@ class Banco {
 
 	public sacar(numero: String, valor: number): void {
 		let contaConsultada = this.consultar(numero);
-
 		if (contaConsultada != null) {
 			contaConsultada.sacar(valor);
 		}
@@ -122,7 +149,6 @@ class Banco {
 		try{
 			let contaCredito = this.consultar(numeroCredito);
 			let contaDebito = this.consultar(numeroDebito);
-
 			if (contaDebito && contaCredito) {
 				contaDebito.transferir(contaCredito, valor);
 			}
@@ -149,14 +175,13 @@ class Banco {
 		*/
 	}
 
-	renderJuros(numero: string) {
+	renderJuros(numero: string): void {
 		let conta: Conta = this.consultar(numero);
 		if (conta instanceof Poupanca) {
 			conta.renderJuros();
 			// (conta as Poupanca).renderJuros();
 			//(<Poupanca> conta).renderJuros()
 		}
-
 	}
 
 	public getTotalContas(): number {
@@ -235,50 +260,14 @@ class Banco {
 	}
 
 }
-
-class Poupanca extends Conta {
-	private _taxaDeJuros: number;
-
-	constructor(numero: string, saldo: number, taxaDeJuros: number) {
-		super(numero, saldo);
-		this._taxaDeJuros = taxaDeJuros;
-	}
-
-	renderJuros(): void {
-		let juros: number = this.saldo * this._taxaDeJuros / 100;
-		this.depositar(juros);
-	}
-
-	get taxaDeJuros(): number {
-		return this._taxaDeJuros;
-	}
-}
-
-class ContaImposto extends Conta {
-	private _taxaDesconto: number;
-
-	constructor(numero: string, saldo: number, taxaDesconto: number) {
-		super(numero, saldo);
-		this._taxaDesconto = taxaDesconto
-	}
-
-	sacar(valor: number): void {
-		let valorDesconto = this.saldo * this._taxaDesconto / 100;
-		super.sacar(valor + valorDesconto);
-	}
-
-	get taxaDesconto(): number {
-		return this._taxaDesconto;
-	}
-}
-
 // Questao 05
-let banco: Banco = new Banco ();
-banco.inserir(new Conta("001", 100));
-banco.inserir(new Conta("002", 0));
-banco.transferir("002", "001", 150);
-console.log(banco.consultar("001"));
-console.log(banco.consultar("002"));
+let Itau: Banco = new Banco ();
+Itau.inserir(new Conta("001", 100));
+Itau.inserir(new Conta("002", 0));
+Itau.transferir("002", "001", 150);
+console.log(Itau.consultar("001"));
+console.log(Itau.consultar("002"));
+
 
 
 
