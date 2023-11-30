@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-
 class Conta {
 	private _numero: string;
 	private _saldo: number;
