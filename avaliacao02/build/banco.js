@@ -213,11 +213,17 @@ class Banco {
         if (conta instanceof Poupanca) {
             conta.renderJuros();
         }
+        if (!(conta instanceof Poupanca)) {
+            throw new PoupancaInvalidaError;
+        }
     }
     debitarDesconto(numero) {
         let conta = this.consultar(numero);
         if (conta instanceof ContaImposto) {
             conta.debitarDesconto();
+        }
+        if (!(conta instanceof ContaImposto)) {
+            throw new ContaImpostoInvalidaError;
         }
     }
     getTotalContas() {
@@ -316,6 +322,11 @@ class ValorInvalidoError extends AplicacaoError {
 // Questao 12
 class PoupancaInvalidaError extends AplicacaoError {
     constructor(message = "A referida conta nao eh poupanca.") {
+        super(message);
+    }
+}
+class ContaImpostoInvalidaError extends AplicacaoError {
+    constructor(message = "A referida conta nao eh Conta Imposto.") {
         super(message);
     }
 }

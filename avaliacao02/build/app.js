@@ -12,7 +12,7 @@ do {
     console.log('\nBem vindo\nDigite uma opção:');
     console.log('1 - Cadastrar     2 - Consultar           3 - Sacar\n' +
         '4 - Depositar     5 - Excluir             6 - Transferir\n' +
-        '7 - Render Juros  8 - Debitar Juros       0 - Sair\n');
+        '7 - Render Juros  8 - Debitar Desconto    0 - Sair\n');
     opcao = input("Opção:");
     try {
         switch (opcao) {

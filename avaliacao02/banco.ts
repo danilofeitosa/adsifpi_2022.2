@@ -162,7 +162,6 @@ class Banco {
 			for (let i: number = indice; i < this.contas.length; i++) {
 				this.contas[i] = this.contas[i + 1];
 			}
-
 			this.contas.pop();
 		}
 	}
@@ -207,12 +206,19 @@ class Banco {
 		if (conta instanceof Poupanca) {
 			conta.renderJuros();
 		}
+		if (!(conta instanceof Poupanca)) {
+			throw new PoupancaInvalidaError;
+		}
+		
 	}
 
 	debitarDesconto(numero: string): void {
 		let conta: Conta = this.consultar(numero);
 		if (conta instanceof ContaImposto) {
 			conta.debitarDesconto();
+		}
+		if(!(conta instanceof ContaImposto)) {
+			throw new ContaImpostoInvalidaError;
 		}
 	}
 
@@ -318,6 +324,12 @@ class ValorInvalidoError extends AplicacaoError {
 // Questao 12
 class PoupancaInvalidaError extends AplicacaoError {
 	constructor(message: string = "A referida conta nao eh poupanca.") {
+		super(message);
+	}
+}
+
+class ContaImpostoInvalidaError extends AplicacaoError {
+	constructor(message: string = "A referida conta nao eh Conta Imposto.") {
 		super(message);
 	}
 }
