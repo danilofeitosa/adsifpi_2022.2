@@ -23,21 +23,38 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ContaImposto = exports.Poupanca = exports.Conta = exports.Banco = void 0;
+exports.ValorInvalidoError = exports.AplicacaoError = exports.ContaImposto = exports.Poupanca = exports.Conta = exports.Banco = void 0;
 const fs = __importStar(require("fs"));
 class Conta {
     constructor(numero, saldoInicial) {
         this._numero = numero;
         this._saldo = saldoInicial;
+        if (saldoInicial < 0) {
+            throw new ValorInvalidoError();
+        }
     }
-    // Questao 03
     sacar(valor) {
+        // Questao 06
+        /*if (valor < 0) {
+            throw new Error("Valor a ser sacado nao pode ser negativo.")
+        }*/
+        // Questao 11
+        this.validarValor(valor);
+        // Questao 03
         if (this._saldo < valor) {
-            throw new Error(`Saldo insuficiente para realizar o saque solicitado.`);
+            throw new Error("Saldo insuficiente para realizar a transacao.");
         }
         this._saldo = this._saldo - valor;
     }
     depositar(valor) {
+        // Questao 06
+        if (valor < 0) {
+            //throw new Error("Valor a ser depositado nao pode ser negativo.")
+            // Questao 10
+            throw new ValorInvalidoError("Valor nao pode ser menor ou igual a 0");
+        }
+        // Questao 11
+        this.validarValor(valor);
         this._saldo = this._saldo + valor;
     }
     consultar() {
@@ -52,6 +69,12 @@ class Conta {
         return this.saldo;
     }
     */
+    validarValor(valor) {
+        if (valor <= 0) {
+            throw new ValorInvalidoError("Valor invalido");
+        }
+        // return valor ??????????????????
+    }
     get numero() {
         return this._numero;
     }
@@ -93,13 +116,19 @@ class Banco {
         this.contas = [];
         this.CAMINHO_ARQUIVO = "./contas.txt";
     }
+    // Questao 13
     inserir(conta) {
-        let contaConsultada = this.consultar(conta.numero);
-        if (contaConsultada == null) {
-            this.contas.push(conta);
+        try {
+            this.consultar(conta.numero);
         }
-        else {
-            console.log(`Conta ${conta.numero} já cadastrada`);
+        catch (error) {
+            if (error instanceof ContaInexistenteError) {
+                this.contas.push(conta);
+                console.log(`Conta ${conta.numero} cadastrada com sucesso`);
+            }
+            else {
+                throw error; // Precisa desse else aqui mesmo?
+            }
         }
     }
     consultar(numero) {
@@ -110,6 +139,9 @@ class Banco {
                 break;
             }
         }
+        if (!contaConsultada) {
+            throw new ContaInexistenteError(`Conta ${numero} nao encontrada`);
+        }
         return contaConsultada;
     }
     consultarPorIndice(numero) {
@@ -119,14 +151,18 @@ class Banco {
                 indice = i;
                 break;
             }
+            if (!indice) {
+                throw new ContaInexistenteError("Indide de conta invalido.");
+            }
         }
         return indice;
     }
+    // Questao 09
     alterar(conta) {
         let indice = this.consultarPorIndice(conta.numero);
-        if (indice != -1) {
-            this.contas[indice] = conta;
-        }
+        //if (indice != -1) {
+        this.contas[indice] = conta;
+        //}
     }
     excluir(numero) {
         let indice = this.consultarPorIndice(numero);
@@ -137,17 +173,19 @@ class Banco {
             this.contas.pop();
         }
     }
+    // Questao 09
     depositar(numero, valor) {
         let contaConsultada = this.consultar(numero);
-        if (contaConsultada != null) {
-            contaConsultada.depositar(valor);
-        }
+        //if (contaConsultada != null) {
+        contaConsultada.depositar(valor);
+        //}
     }
+    // Questao 09
     sacar(numero, valor) {
         let contaConsultada = this.consultar(numero);
-        if (contaConsultada != null) {
-            contaConsultada.sacar(valor);
-        }
+        //if (contaConsultada != null) {
+        contaConsultada.sacar(valor);
+        //}
     }
     // Questao 05 - Incluindo o try catch no metodo transferir.
     transferir(numeroCredito, numeroDebito, valor) {
@@ -254,11 +292,34 @@ class Banco {
     }
 }
 exports.Banco = Banco;
-// Questao 05
-let Itau = new Banco();
-Itau.inserir(new Conta("001", 100));
-Itau.inserir(new Conta("002", 0));
-Itau.transferir("002", "001", 150);
-console.log(Itau.consultar("001"));
-console.log(Itau.consultar("002"));
+// Questao 07
+class AplicacaoError extends Error {
+    constructor(message) {
+        super(message);
+    }
+}
+exports.AplicacaoError = AplicacaoError;
+class ContaInexistenteError extends AplicacaoError {
+    constructor(message = "Conta inexistente.") {
+        super(message);
+    }
+}
+class SaldoInsuficienteError extends AplicacaoError {
+    constructor(message = "Saldo insuficiente.") {
+        super(message);
+    }
+}
+// Questao 10
+class ValorInvalidoError extends AplicacaoError {
+    constructor(message = "Valor invalido. Insira um valor positivo.") {
+        super(message);
+    }
+}
+exports.ValorInvalidoError = ValorInvalidoError;
+// Questao 12
+class PoupancaInvalidaError extends AplicacaoError {
+    constructor(message = "A referida conta nao eh poupanca.") {
+        super(message);
+    }
+}
 //# sourceMappingURL=banco.js.map

@@ -10,43 +10,60 @@ let b = new banco_1.Banco();
 let opcao = '';
 do {
     console.log('\nBem vindo\nDigite uma opção:');
-    console.log('1 - Cadastrar     2 - Consultar saldo     3 - Sacar\n' +
+    console.log('1 - Cadastrar     2 - Consultar           3 - Sacar\n' +
         '4 - Depositar     5 - Excluir             6 - Transferir\n' +
-        '7 - Render Juros' +
-        '0 - Sair\n');
+        '7 - Render Juros  0 - Sair\n');
     opcao = input("Opção:");
-    switch (opcao) {
-        case "1":
-            cadastrar();
-            break;
-        case "2":
-            consultar();
-            break;
-        case "3":
-            sacar();
-            break;
-        case "4":
-            depositar();
-            break;
-        case "5":
-            excluir();
-            break;
-        case "6":
-            transferir();
-            break;
-        case "7":
-            renderJuros();
-            break;
-        //...
+    try {
+        switch (opcao) {
+            case "1":
+                cadastrar();
+                break;
+            case "2":
+                consultar();
+                break;
+            case "3":
+                sacar();
+                break;
+            case "4":
+                depositar();
+                break;
+            case "5":
+                excluir();
+                break;
+            case "6":
+                transferir();
+                break;
+            case "7":
+                renderJuros();
+                break;
+            //...
+        }
     }
+    catch (error) {
+        if (error instanceof banco_1.AplicacaoError) {
+            console.log(error.message);
+        }
+        /*
+        if (error instanceof ValorInvalidoError) {
+            console.log(error.message);
+        }
+        
+        if(error instanceof Error) {
+            console.log("Erro no sistema. Contate o administrador.")
+        }
+        */
+    } /*finally {
+        console.log("Operação finalizada. Digite 0 caso deseja sair.");
+    }*/
     input("\nOperação finalizada. Digite <enter>");
 } while (opcao != "0");
 console.log("Aplicação encerrada");
 function cadastrar() {
-    console.log("\nCadastrar conta\n");
-    let numero = input('Digite o número da conta:');
+    console.log("\nCadastrar Conta\n");
+    let numero = input('Digite o número da conta: ');
     let conta;
-    conta = new banco_1.Conta(numero, 0);
+    conta = new banco_1.Conta(numero, parseFloat(input("Digite o valor do primeiro deposito: ")));
     b.inserir(conta);
     exibirConta(numero);
 }

@@ -7,16 +7,36 @@ class Conta {
 	constructor(numero: string, saldoInicial: number) {
 		this._numero = numero;
 		this._saldo = saldoInicial;
+		
+		if (saldoInicial < 0) {
+			throw new ValorInvalidoError();
+		}
 	}
-// Questao 03
+
 	sacar(valor: number): void {
+// Questao 06
+		/*if (valor < 0) {
+			throw new Error("Valor a ser sacado nao pode ser negativo.")
+		}*/
+
+// Questao 11
+		this.validarValor(valor);
+// Questao 03
 		if (this._saldo < valor) {
-			throw new Error(`Saldo insuficiente para realizar o saque solicitado.`);
+			throw new Error("Saldo insuficiente para realizar a transacao.");
 		}
 			this._saldo = this._saldo - valor;
 	}
 
 	depositar(valor: number): void {
+// Questao 06
+		if (valor < 0) {
+			//throw new Error("Valor a ser depositado nao pode ser negativo.")
+// Questao 10
+			throw new ValorInvalidoError("Valor nao pode ser menor ou igual a 0")
+		}
+// Questao 11
+		this.validarValor(valor);
 		this._saldo = this._saldo + valor;
 	}
 
@@ -33,6 +53,15 @@ class Conta {
 		return this.saldo;
 	}
 	*/
+
+    private validarValor(valor: number): void {
+        if (valor <= 0) {
+            throw new ValorInvalidoError("Valor invalido");
+        }
+		// return valor ??????????????????
+	}
+
+	
 
 	get numero(): string {
 		return this._numero;
@@ -79,19 +108,21 @@ class ContaImposto extends Conta {
 class Banco {
 	private contas: Conta[] = [];
 	private CAMINHO_ARQUIVO: string = "./contas.txt";
-
+// Questao 13
 	public inserir(conta: Conta): void {
-		let contaConsultada = this.consultar(conta.numero);
-
-		if (contaConsultada == null) {
-			this.contas.push(conta);
-
-		} else {
-			console.log(`Conta ${conta.numero} já cadastrada`)
-		} 	
+		try {
+			this.consultar(conta.numero);
+		} catch(error: any) {
+			if (error instanceof ContaInexistenteError) {
+				this.contas.push(conta);
+				console.log(`Conta ${conta.numero} cadastrada com sucesso`)
+			} else {
+				throw error // Precisa desse else aqui mesmo?
+			}
+		}
 	}
 
-	public consultar(numero: String): Conta {
+	public consultar(numero: string): Conta {
 		let contaConsultada!: Conta;
 		for (let conta of this.contas) {
 			if (conta.numero == numero) {
@@ -99,25 +130,31 @@ class Banco {
 				break;
 			}
 		}
+		if(!contaConsultada){
+			throw new ContaInexistenteError(`Conta ${numero} nao encontrada`);
+		}
 		return contaConsultada;
 	}
 
-	private consultarPorIndice(numero: String): number {
+	private consultarPorIndice(numero: string): number {
 		let indice: number = -1;
 		for (let i: number = 0; i < this.contas.length; i++) {
 			if (this.contas[i].numero == numero) {
 				indice = i;
 				break;
 			}
+			if (!indice) {
+				throw new ContaInexistenteError("Indide de conta invalido.")
+			}
 		}
 		return indice;
 	}
-
+// Questao 09
 	public alterar(conta: Conta): void {
 		let indice: number = this.consultarPorIndice(conta.numero);
-		if (indice != -1) {
+		//if (indice != -1) {
 			this.contas[indice] = conta;
-		}
+		//}
 	}
 
 	public excluir(numero: string): void {
@@ -130,19 +167,19 @@ class Banco {
 			this.contas.pop();
 		}
 	}
-
-	public depositar(numero: String, valor: number): void {
+// Questao 09
+	public depositar(numero: string, valor: number): void {
 		let contaConsultada = this.consultar(numero);
-		if (contaConsultada != null) {
+		//if (contaConsultada != null) {
 			contaConsultada.depositar(valor);
-		}
+		//}
 	}
-
-	public sacar(numero: String, valor: number): void {
+// Questao 09
+	public sacar(numero: string, valor: number): void {
 		let contaConsultada = this.consultar(numero);
-		if (contaConsultada != null) {
+		//if (contaConsultada != null) {
 			contaConsultada.sacar(valor);
-		}
+		//}
 	}
 // Questao 05 - Incluindo o try catch no metodo transferir.
 	public transferir(numeroCredito: string, numeroDebito: string, valor: number): void {
@@ -260,6 +297,38 @@ class Banco {
 	}
 
 }
+// Questao 07
+class AplicacaoError extends Error {
+	constructor(message: string) {
+		super(message);
+	}
+}
+
+class ContaInexistenteError extends AplicacaoError {
+	constructor(message: string = "Conta inexistente.") {
+		super(message);
+	}
+}
+
+class SaldoInsuficienteError extends AplicacaoError {
+	constructor(message: string = "Saldo insuficiente.") {
+		super(message);
+	}
+}
+// Questao 10
+class ValorInvalidoError extends AplicacaoError {
+	constructor(message: string = "Valor invalido. Insira um valor positivo.") {
+		super(message);
+	}
+}
+// Questao 12
+class PoupancaInvalidaError extends AplicacaoError {
+	constructor(message: string = "A referida conta nao eh poupanca.") {
+		super(message);
+	}
+}
+
+/*
 // Questao 05
 let Itau: Banco = new Banco ();
 Itau.inserir(new Conta("001", 100));
@@ -267,7 +336,7 @@ Itau.inserir(new Conta("002", 0));
 Itau.transferir("002", "001", 150);
 console.log(Itau.consultar("001"));
 console.log(Itau.consultar("002"));
-
+*/
 
 
 
@@ -321,4 +390,4 @@ banco.inserir(poupanca);
 banco.inserir(conta1);
 
 */
-export { Banco, Conta, Poupanca, ContaImposto }
+export { Banco, Conta, Poupanca, ContaImposto, AplicacaoError, ValorInvalidoError }

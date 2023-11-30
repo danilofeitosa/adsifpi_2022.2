@@ -1,57 +1,74 @@
 import prompt from "prompt-sync";
-import { Conta, Banco } from "./banco";
+import { Conta, Banco, AplicacaoError, ValorInvalidoError } from "./banco";
 
 let input = prompt();
 let b: Banco = new Banco();
-let opcao: String = '';
+let opcao: string = '';
 
 do {
     console.log('\nBem vindo\nDigite uma opção:');
-    console.log('1 - Cadastrar     2 - Consultar saldo     3 - Sacar\n' +
+    console.log('1 - Cadastrar     2 - Consultar           3 - Sacar\n' +
                 '4 - Depositar     5 - Excluir             6 - Transferir\n' +
-                '7 - Render Juros' +
-                '0 - Sair\n');
+                '7 - Render Juros  0 - Sair\n');
+
     opcao = input("Opção:");
-    switch (opcao) {
-        case "1":
-            cadastrar();
-            break;
-        case "2":
-            consultar();
-            break;
-        case "3":
-            sacar();
-            break;
-        case "4": 
-            depositar();
-            break;
-        case "5":
-            excluir();
-            break;
-        case "6":
-            transferir();
-            break;     
-        case "7":
-            renderJuros();
-            break;
-        //...
-    }
+    try {
+        switch (opcao) {
+            case "1":
+                cadastrar();
+                break;
+            case "2":
+                consultar();
+                break;
+            case "3":
+                sacar();
+                break;
+            case "4": 
+                depositar();
+                break;
+            case "5":
+                excluir();
+                break;
+            case "6":
+                transferir();
+                break;     
+            case "7":
+                renderJuros();
+                break;
+            //...
+        }
+    } catch (error: any) {
+        if (error instanceof AplicacaoError) {
+            console.log(error.message);
+        }
+        /*
+        if (error instanceof ValorInvalidoError) {
+            console.log(error.message);
+        }
+        
+        if(error instanceof Error) {
+            console.log("Erro no sistema. Contate o administrador.")
+        }
+        */
+    } /*finally {
+        console.log("Operação finalizada. Digite 0 caso deseja sair.");       
+    }*/
     input("\nOperação finalizada. Digite <enter>");
 } while (opcao != "0");
 console.log("Aplicação encerrada");
 
 
 function cadastrar(): void {
-    console.log("\nCadastrar conta\n");
-    let numero: string = input('Digite o número da conta:');
+    console.log("\nCadastrar Conta\n");
+    let numero: string = input('Digite o número da conta: ');
 
     let conta: Conta;
-    conta = new Conta(numero, 0);
+    conta = new Conta(numero, parseFloat(input("Digite o valor do primeiro deposito: ")));
     b.inserir(conta);
     exibirConta(numero);
 }
 
-function exibirConta(numero: String): void {
+function exibirConta(numero: string): void {
     console.log(`Número: ${b.consultar(numero).numero} - Saldo: ${b.consultar(numero).saldo}`);
 }
 
