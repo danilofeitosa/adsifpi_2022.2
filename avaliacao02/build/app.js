@@ -47,15 +47,6 @@ do {
         if (error instanceof banco_1.AplicacaoError) {
             console.log(error.message);
         }
-        /*
-        if (error instanceof ValorInvalidoError) {
-            console.log(error.message);
-        }
-        
-        if(error instanceof Error) {
-            console.log("Erro no sistema. Contate o administrador.")
-        }
-        */
     }
     input("\nOperação finalizada. Digite <enter>");
 } while (opcao != "0");

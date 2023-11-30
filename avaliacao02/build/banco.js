@@ -129,7 +129,7 @@ class Banco {
                 console.log(`Conta ${conta.numero} cadastrada com sucesso`);
             }
             else {
-                throw error; // Precisa desse else aqui mesmo?
+                throw error;
             }
         }
     }
@@ -203,17 +203,10 @@ class Banco {
         }
     }
     getTotalDepositado() {
-        // solução 1
         let totalDepositado = this.contas.reduce((totalAcumulado, conta) => {
             return totalAcumulado + conta.saldo;
         }, 0);
         return totalDepositado;
-        /* solução 2
-        let totalDepositado: number = 0
-        this.contas.forEach(conta => totalDepositado += conta.saldo);
-
-        return totalDepositado;
-        */
     }
     renderJuros(numero) {
         let conta = this.consultar(numero);

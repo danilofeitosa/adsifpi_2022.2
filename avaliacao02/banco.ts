@@ -43,7 +43,7 @@ class Conta {
 		this._saldo = this._saldo + valor;
 	}
 
-	consultar(): number { //verificar se realmente necessario
+	consultar(): number {
 		return this.saldo
 	}
 
@@ -62,8 +62,6 @@ class Conta {
             throw new ValorInvalidoError("Valor invalido");
         }
 	}
-
-	
 
 	get numero(): string {
 		return this._numero;
@@ -119,7 +117,7 @@ class Banco {
 				this.contas.push(conta);
 				console.log(`Conta ${conta.numero} cadastrada com sucesso`)
 			} else {
-				throw error // Precisa desse else aqui mesmo?
+				throw error
 			}
 		}
 	}
@@ -197,21 +195,12 @@ class Banco {
 	}
 
 	public getTotalDepositado(): number {
-
-		// solução 1
 		let totalDepositado =
 			this.contas.reduce((totalAcumulado: number, conta: Conta) => {
 				return totalAcumulado + conta.saldo;
 			}, 0);
 
 		return totalDepositado;
-
-		/* solução 2
-		let totalDepositado: number = 0
-		this.contas.forEach(conta => totalDepositado += conta.saldo);
-
-		return totalDepositado;
-		*/
 	}
 
 	renderJuros(numero: string): void {
