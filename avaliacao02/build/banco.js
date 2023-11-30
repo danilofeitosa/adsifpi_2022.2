@@ -23,13 +23,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ValorInvalidoError = exports.AplicacaoError = exports.ContaImposto = exports.Poupanca = exports.Conta = exports.Banco = void 0;
+exports.AplicacaoError = exports.ContaImposto = exports.Poupanca = exports.Conta = exports.Banco = void 0;
 const fs = __importStar(require("fs"));
 class Conta {
     constructor(numero, saldoInicial) {
         this._numero = numero;
+        if (!ehNumerico(numero)) {
+            throw new NumeroContaInvalidoError();
+        }
         this._saldo = saldoInicial;
-        if (saldoInicial < 0) {
+        if (saldoInicial < 0 || !ehNumerico(String(saldoInicial))) {
             throw new ValorInvalidoError();
         }
     }
@@ -73,7 +76,6 @@ class Conta {
         if (valor <= 0) {
             throw new ValorInvalidoError("Valor invalido");
         }
-        // return valor ??????????????????
     }
     get numero() {
         return this._numero;
@@ -102,9 +104,9 @@ class ContaImposto extends Conta {
         super(numero, saldo);
         this._taxaDesconto = taxaDesconto;
     }
-    sacar(valor) {
+    debitarDesconto() {
         let valorDesconto = this.saldo * this._taxaDesconto / 100;
-        super.sacar(valor + valorDesconto);
+        this.sacar(valorDesconto);
     }
     get taxaDesconto() {
         return this._taxaDesconto;
@@ -217,8 +219,12 @@ class Banco {
         let conta = this.consultar(numero);
         if (conta instanceof Poupanca) {
             conta.renderJuros();
-            // (conta as Poupanca).renderJuros();
-            //(<Poupanca> conta).renderJuros()
+        }
+    }
+    debitarDesconto(numero) {
+        let conta = this.consultar(numero);
+        if (conta instanceof ContaImposto) {
+            conta.debitarDesconto();
         }
     }
     getTotalContas() {
@@ -229,7 +235,6 @@ class Banco {
     }
     carregarDeArquivo() {
         const arquivo = fs.readFileSync(this.CAMINHO_ARQUIVO, 'utf-8');
-        //const linhas: string[] = arquivo.split('\n');
         const linhas = arquivo.split('\r\n');
         console.log("Iniciando leitura de arquivo");
         for (let i = 0; i < linhas.length; i++) {
@@ -311,15 +316,22 @@ class SaldoInsuficienteError extends AplicacaoError {
 }
 // Questao 10
 class ValorInvalidoError extends AplicacaoError {
-    constructor(message = "Valor invalido. Insira um valor positivo.") {
+    constructor(message = "Valor invalido. Insira um valor aceito.") {
         super(message);
     }
 }
-exports.ValorInvalidoError = ValorInvalidoError;
 // Questao 12
 class PoupancaInvalidaError extends AplicacaoError {
     constructor(message = "A referida conta nao eh poupanca.") {
         super(message);
     }
+}
+class NumeroContaInvalidoError extends AplicacaoError {
+    constructor(message = "Numero de conta invalido, insira valores numericos.") {
+        super(message);
+    }
+}
+function ehNumerico(numero) {
+    return /^[0-9]+$/.test(numero);
 }
 //# sourceMappingURL=banco.js.map

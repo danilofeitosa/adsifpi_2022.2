@@ -12,7 +12,7 @@ do {
     console.log('\nBem vindo\nDigite uma opção:');
     console.log('1 - Cadastrar     2 - Consultar           3 - Sacar\n' +
         '4 - Depositar     5 - Excluir             6 - Transferir\n' +
-        '7 - Render Juros  0 - Sair\n');
+        '7 - Render Juros  8 - Debitar Juros       0 - Sair\n');
     opcao = input("Opção:");
     try {
         switch (opcao) {
@@ -37,6 +37,9 @@ do {
             case "7":
                 renderJuros();
                 break;
+            case "8":
+                debitarDesconto();
+                break;
             //...
         }
     }
@@ -53,19 +56,34 @@ do {
             console.log("Erro no sistema. Contate o administrador.")
         }
         */
-    } /*finally {
-        console.log("Operação finalizada. Digite 0 caso deseja sair.");
-    }*/
+    }
     input("\nOperação finalizada. Digite <enter>");
 } while (opcao != "0");
 console.log("Aplicação encerrada");
 function cadastrar() {
     console.log("\nCadastrar Conta\n");
     let numero = input('Digite o número da conta: ');
+    console.log('Tipos de contas:\n' +
+        '1 - C - CONTA CORRENTE\n' +
+        '2 - CP - CONTA POUPANCA\n' +
+        '3 - CI - CONTA IMPOSTO\n');
+    let tipo = input('Digite o Tipo de conta a ser aberta: ');
     let conta;
-    conta = new banco_1.Conta(numero, parseFloat(input("Digite o valor do primeiro deposito: ")));
-    b.inserir(conta);
-    exibirConta(numero);
+    if (tipo == "1") {
+        conta = new banco_1.Conta(numero, parseFloat(input("Digite o valor do primeiro deposito para a Conta Corrente: ")));
+        b.inserir(conta);
+        exibirConta(numero);
+    }
+    else if (tipo == "2") {
+        conta = new banco_1.Poupanca(numero, parseFloat(input("Digite o valor do primeiro deposito para a Conta Poupanca: ")), 1.00);
+        b.inserir(conta);
+        exibirConta(numero);
+    }
+    else if (tipo == "3") {
+        conta = new banco_1.ContaImposto(numero, parseFloat(input("Digite o valor do primeiro deposito para a Conta Imposto: ")), 0.38);
+        b.inserir(conta);
+        exibirConta(numero);
+    }
 }
 function exibirConta(numero) {
     console.log(`Número: ${b.consultar(numero).numero} - Saldo: ${b.consultar(numero).saldo}`);
@@ -107,5 +125,12 @@ function renderJuros() {
     console.log("\nRender Juros\n");
     let numero = input("Digite o numero da conta: ");
     b.renderJuros(numero);
+    exibirConta(numero);
+}
+function debitarDesconto() {
+    console.log("\nDebitar Desconto\n");
+    let numero = input("Digite o numero da conta: ");
+    b.debitarDesconto(numero);
+    exibirConta(numero);
 }
 //# sourceMappingURL=app.js.map

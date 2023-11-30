@@ -6,9 +6,12 @@ class Conta {
 
 	constructor(numero: string, saldoInicial: number) {
 		this._numero = numero;
+		if (!ehNumerico(numero)) {
+			throw new NumeroContaInvalidoError();
+		}
+
 		this._saldo = saldoInicial;
-		
-		if (saldoInicial < 0) {
+		if (saldoInicial < 0 || !ehNumerico(String(saldoInicial))) {
 			throw new ValorInvalidoError();
 		}
 	}
@@ -58,7 +61,6 @@ class Conta {
         if (valor <= 0) {
             throw new ValorInvalidoError("Valor invalido");
         }
-		// return valor ??????????????????
 	}
 
 	
@@ -96,9 +98,9 @@ class ContaImposto extends Conta {
 		this._taxaDesconto = taxaDesconto;
 	}
 
-	sacar(valor: number): void {
+	debitarDesconto(): void {
 		let valorDesconto = this.saldo * this._taxaDesconto / 100;
-		super.sacar(valor + valorDesconto);
+		this.sacar(valorDesconto);
 	}
 
 	get taxaDesconto(): number {
@@ -216,8 +218,13 @@ class Banco {
 		let conta: Conta = this.consultar(numero);
 		if (conta instanceof Poupanca) {
 			conta.renderJuros();
-			// (conta as Poupanca).renderJuros();
-			//(<Poupanca> conta).renderJuros()
+		}
+	}
+
+	debitarDesconto(numero: string): void {
+		let conta: Conta = this.consultar(numero);
+		if (conta instanceof ContaImposto) {
+			conta.debitarDesconto();
 		}
 	}
 
@@ -231,7 +238,6 @@ class Banco {
 
 	public carregarDeArquivo() {
 		const arquivo: string = fs.readFileSync(this.CAMINHO_ARQUIVO, 'utf-8');
-		//const linhas: string[] = arquivo.split('\n');
 		const linhas: string[] = arquivo.split('\r\n');
 		console.log("Iniciando leitura de arquivo");
 
@@ -317,7 +323,7 @@ class SaldoInsuficienteError extends AplicacaoError {
 }
 // Questao 10
 class ValorInvalidoError extends AplicacaoError {
-	constructor(message: string = "Valor invalido. Insira um valor positivo.") {
+	constructor(message: string = "Valor invalido. Insira um valor aceito.") {
 		super(message);
 	}
 }
@@ -326,6 +332,16 @@ class PoupancaInvalidaError extends AplicacaoError {
 	constructor(message: string = "A referida conta nao eh poupanca.") {
 		super(message);
 	}
+}
+
+class NumeroContaInvalidoError extends AplicacaoError {
+	constructor(message: string = "Numero de conta invalido, insira valores numericos.") {
+		super(message);
+	}
+}
+
+function ehNumerico(numero: string): boolean {
+	return /^[0-9]+$/.test(numero);
 }
 
 /*
@@ -338,56 +354,4 @@ console.log(Itau.consultar("001"));
 console.log(Itau.consultar("002"));
 */
 
-
-
-
-
-
-
-/*
-let b: Banco = new Banco();
-//b.inserir(new Poupanca("222", 100, 0.5));
-//b.renderJuros("222")
-//b.salvarEmArquivo();
-//console.log(b.consultar("222"));
-b.carregarDeArquivo();
-b.inserir(new Conta("777", 70));
-b.inserir(new Poupanca("888", 80, 0.5));
-b.inserir(new Poupanca("999", 90, 0.38));
-b.salvarEmArquivo();
-
-/*
-b.inserir(new Conta("11111-1", 100));
-b.inserir(new Conta("22222-2", 150));
-b.inserir(new Conta("33333-3", 300));
-
-b.transferir("11111-1", "22222-2", 71);
-console.log(b.consultar("11111-1"));
-console.log(b.consultar("22222-2"));
-console.log(b.consultar("33333-3"));
-console.log(b.getTotalDepositado());
-console.log(b.getMediaDepositada());
-*/
-/*
-let poupanca: Poupanca = new Poupanca("1-1",100, 0.5);
-
-poupanca.depositar(100);
-
-console.log(poupanca.saldo);
-poupanca.renderJuros();
-console.log(poupanca.saldo);
-
-
-let conta1: Poupanca = new Poupanca("1-2",100, 0.5);
-console.log(conta1 instanceof Poupanca);
-console.log(conta1 instanceof Conta);
-console.log(conta1 instanceof Object);
-
-let banco: Banco = new Banco();
-let conta2: Conta = new Conta("22222-2", 150);
-banco.inserir(conta2);
-banco.inserir(poupanca);
-banco.inserir(conta1);
-
-*/
-export { Banco, Conta, Poupanca, ContaImposto, AplicacaoError, ValorInvalidoError }
+export { Banco, Conta, Poupanca, ContaImposto, AplicacaoError }

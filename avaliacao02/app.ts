@@ -1,5 +1,6 @@
 import prompt from "prompt-sync";
-import { Conta, Banco, AplicacaoError, ValorInvalidoError } from "./banco";
+import { Conta, Banco, AplicacaoError, Poupanca, ContaImposto } from "./banco";
+import { Console } from "console";
 
 let input = prompt();
 let b: Banco = new Banco();
@@ -9,7 +10,7 @@ do {
     console.log('\nBem vindo\nDigite uma opção:');
     console.log('1 - Cadastrar     2 - Consultar           3 - Sacar\n' +
                 '4 - Depositar     5 - Excluir             6 - Transferir\n' +
-                '7 - Render Juros  0 - Sair\n');
+                '7 - Render Juros  8 - Debitar Juros       0 - Sair\n');
 
     opcao = input("Opção:");
     try {
@@ -35,6 +36,9 @@ do {
             case "7":
                 renderJuros();
                 break;
+            case "8":
+                debitarDesconto();
+                break;
             //...
         }
     } catch (error: any) {
@@ -50,9 +54,7 @@ do {
             console.log("Erro no sistema. Contate o administrador.")
         }
         */
-    } /*finally {
-        console.log("Operação finalizada. Digite 0 caso deseja sair.");       
-    }*/
+    }
     input("\nOperação finalizada. Digite <enter>");
 } while (opcao != "0");
 console.log("Aplicação encerrada");
@@ -61,11 +63,25 @@ console.log("Aplicação encerrada");
 function cadastrar(): void {
     console.log("\nCadastrar Conta\n");
     let numero: string = input('Digite o número da conta: ');
-
+    console.log('Tipos de contas:\n' +
+                '1 - C - CONTA CORRENTE\n' +
+                '2 - CP - CONTA POUPANCA\n' +
+                '3 - CI - CONTA IMPOSTO\n');
+    let tipo: string = input('Digite o Tipo de conta a ser aberta: ')
     let conta: Conta;
-    conta = new Conta(numero, parseFloat(input("Digite o valor do primeiro deposito: ")));
-    b.inserir(conta);
-    exibirConta(numero);
+    if(tipo == "1") {
+        conta = new Conta(numero, parseFloat(input("Digite o valor do primeiro deposito para a Conta Corrente: ")));
+        b.inserir(conta);
+        exibirConta(numero);
+    } else if (tipo == "2") {
+        conta = new Poupanca(numero, parseFloat(input("Digite o valor do primeiro deposito para a Conta Poupanca: ")), 1.00);
+        b.inserir(conta);
+        exibirConta(numero);
+    } else if (tipo == "3") {
+        conta = new ContaImposto(numero, parseFloat(input("Digite o valor do primeiro deposito para a Conta Imposto: ")),0.38);
+        b.inserir(conta);
+        exibirConta(numero);
+    } 
 }
 
 function exibirConta(numero: string): void {
@@ -113,6 +129,14 @@ function transferir(): void {
 
 function renderJuros(): void {
     console.log("\nRender Juros\n");
-    let numero: string = input("Digite o numero da conta: ")
+    let numero: string = input("Digite o numero da conta: ");
     b.renderJuros(numero);
+    exibirConta(numero);
+}
+
+function debitarDesconto(): void {
+    console.log("\nDebitar Desconto\n");
+    let numero: string = input("Digite o numero da conta: ");
+    b.debitarDesconto(numero);
+    exibirConta(numero);
 }
