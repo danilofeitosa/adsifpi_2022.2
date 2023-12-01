@@ -157,7 +157,7 @@ q8. Implemente na classe Banco os métodos consultar e consultarPorIndice para q
 /*
 q9. Altere os métodos alterar, depositar, sacar, transferir, renderJuros removendo os “ifs/elses”, pois caso haja exceção no método consultar, os respectivos códigos não serão mais necessários.
 
-    R: Coloquei os ifs como comentario em cada um dos metodos. No metodo transferir, eu havia feito na questao 5 o uso do try catch, mas eu vou retornar ao estado anterior. Ja no metodo renderJuros, o unico if eh validando se a conta eh poupanca e, no caso, a excecao no metodo consultar nao substitui essa validacao.
+    R: Coloquei os ifs como comentario em cada um dos metodos. Ja no metodo renderJuros, o unico if eh validando se a conta eh poupanca e, no caso, a excecao no metodo consultar nao substitui essa validacao.
 */
 /*
 q.10. Crie uma exceção chamada ValorInvalidoError que herda de AplicacaoException e altere a classe Conta para que ao receber um crédito/depósito, caso o valor seja menor ou igual a zero, seja lançada a exceção ValorInvalidoError. Altere também o
