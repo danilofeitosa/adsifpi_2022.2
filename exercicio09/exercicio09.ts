@@ -361,8 +361,47 @@ class SeguroDeVida implements Tributavel {
     }
 }
 
+/*
+11. Crie uma classe chamada AuditoriaInterna que tenha dois métodos que tenha um array de Tributaveis e os métodos:
+a. adicionar(Tributável);
+b. calcularTributos(): retorna um double que representa a soma de todos os
+cálculos dos tributos de todos os tributáveis;
+c. Crie uma classe de testes que instancie várias classes ContaCorrente e
+SeguroDeVida, adicione-as na classe AuditoriaInterna e exiba o resultado
+do método calculaTributos. Perceba que a classe de auditoria não se preocupa que tipo de classe está sendo passada.
+*/
+
+    class AuditoriaInterna {
+        private tributaveis: Tributavel[] = []
+    // a)    
+        adicionar(tributavel: Tributavel): void {
+            this.tributaveis.push(tributavel);
+        }
+
+        calcularTributos(): number {
+            let totalTributos = 0;
+            for (let tributavel of this.tributaveis) {
+                totalTributos += tributavel.calculaTributos();
+            }
+            return totalTributos;
+        }
+    }
+
+    const auditoria = new AuditoriaInterna();
+
+    const contaCorrente1 = new ContaCorrente("001", 0);
+    contaCorrente1.setSaldo(1000);
+    auditoria.adicionar(contaCorrente1);
+
+    const contaCorrente2 = new ContaCorrente("002", 0);
+    contaCorrente2.setSaldo(2000);
+    auditoria.adicionar(contaCorrente2);
+
+    const seguroDeVida = new SeguroDeVida();
+    auditoria.adicionar(seguroDeVida);
 
 
+    console.log("Total de tributos calculados pela Auditoria Interna:", auditoria.calcularTributos());
 
 
 
