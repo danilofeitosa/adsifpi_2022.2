@@ -8,6 +8,7 @@ let input = (0, prompt_sync_1.default)();
 //1) a)
 class Perfil {
     constructor(_id, _nome, _email) {
+        this._postagens = [];
         this._id = _id;
         this._nome = _nome;
         this._email = _email;
@@ -134,7 +135,7 @@ class RepositorioDePostagensArray {
     }
     incluir(postagem) {
         this._postagens.push(postagem);
-        let perfilAssociado = postagem.perfil;
+        let perfilAssociado = new Perfil(postagem.perfil.id, postagem.perfil.nome, postagem.perfil.email);
         perfilAssociado.postagens.push(postagem);
     }
     // 04) c)
@@ -333,7 +334,7 @@ class App {
                         novaPostagem = new Postagem(idPostagem, textoPostagem, 0, 0, new Date(), perfildaPostagem);
                     }
                     this._redeSocial.incluirPostagem(novaPostagem);
-                    console.log(`Postagem do Perfil ${novaPostagem.perfil.nome} incluída com sucesso`);
+                    //console.log(`Postagem do Perfil ${novaPostagem.perfil.nome} incluída com sucesso`);
                     break;
                 case "4":
                     console.log("4 - Consultar Postagem");

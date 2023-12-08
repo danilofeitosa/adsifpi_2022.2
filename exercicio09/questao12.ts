@@ -9,7 +9,7 @@ class Perfil {
     private _id: number;
     private _nome: string;
     private _email: string;
-    private _postagens: Postagem[];
+    private _postagens: Postagem[] = [];
 
     constructor (_id: number, _nome: string, _email: string) {
         this._id = _id;
@@ -192,7 +192,7 @@ class RepositorioDePostagensArray implements IRepositorioDePostagens {
 
     incluir(postagem: Postagem): void {
         this._postagens.push(postagem);
-        let perfilAssociado = postagem.perfil;
+        let perfilAssociado: Perfil = new Perfil (postagem.perfil.id, postagem.perfil.nome, postagem.perfil.email);
         perfilAssociado.postagens.push(postagem);
     }
 // 04) c)
@@ -404,7 +404,7 @@ class App {
                         novaPostagem = new Postagem(idPostagem, textoPostagem, 0, 0, new Date(), perfildaPostagem);    
                     }
                     this._redeSocial.incluirPostagem(novaPostagem);
-                    console.log(`Postagem do Perfil ${novaPostagem.perfil.nome} incluída com sucesso`);
+                    //console.log(`Postagem do Perfil ${novaPostagem.perfil.nome} incluída com sucesso`);
                     break;
                 case "4":
                     console.log("4 - Consultar Postagem");
