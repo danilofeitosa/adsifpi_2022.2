@@ -112,22 +112,21 @@ class PostagemAvancada extends Postagem {
     }
 //2) b) i)
     adicionarHashtag(hashtag: string): void {
-       this._hashtags.push(hashtag)
+       this._hashtags.push(hashtag);
     }
 //2) b) ii)
     existeHashtag(hashtag: string): boolean {
-
         for (let hashtagConsultada of this._hashtags) {
             if (hashtagConsultada == hashtag) {
-                return true
+                return true;
             } else {
-                return false
+                return false;
             }
         }
     }
 //2) b) iii)
     decrementarVisualizacoes(): void {
-        this._visualizacoesRestantes--
+        this._visualizacoesRestantes--;
     }
 }
 
