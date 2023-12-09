@@ -15,7 +15,7 @@ class Perfil {
         this._id = _id;
         this._nome = _nome;
         this._email = _email;
-        this._postagens = [];
+        //this._postagens = [];
     }
 
     get id(): number {
@@ -192,8 +192,15 @@ class RepositorioDePostagensArray implements IRepositorioDePostagens {
 
     incluir(postagem: Postagem): void {
         this._postagens.push(postagem);
-        let perfilAssociado: Perfil = new Perfil (postagem.perfil.id, postagem.perfil.nome, postagem.perfil.email);
-        perfilAssociado.postagens.push(postagem);
+        postagem.perfil.postagens.push(postagem);
+        console.log("Certo")
+        /*
+        if (perfilAssociado && perfilAssociado.postagens) {
+            perfilAssociado.postagens.push(postagem);
+        } else {
+            console.error("O objeto 'perfilAssociado' ou 'postagens' é indefinido.");
+        }
+        */
     }
 // 04) c)
     consultar(id?: number, texto?: string, hashtag?: string, perfil?: Perfil): Postagem[] | null {
