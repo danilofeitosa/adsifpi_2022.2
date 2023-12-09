@@ -9,7 +9,7 @@ class Perfil {
     private _id: number;
     private _nome: string;
     private _email: string;
-    private _postagens: Postagem[] = [];
+    //private _postagens: Postagem[] = [];
 
     constructor (_id: number, _nome: string, _email: string) {
         this._id = _id;
@@ -30,9 +30,9 @@ class Perfil {
         return this._email;
     }
 //1) c)
-    get postagens(): Postagem[] {
-        return this._postagens
-    }
+   // get postagens(): Postagem[] {
+   //     return this._postagens
+   // }
 }
 //1) b)
 class Postagem {
@@ -132,7 +132,7 @@ class PostagemAvancada extends Postagem {
 
 interface IRepositorioDePerfis {
     incluir(perfil: Perfil): void;
-    consultar(id: number, nome: string, email: string): Perfil; // | null;
+    consultar(id?: number, nome?: string, email?: string): Perfil; // | null;
 }
 
 class RepositorioDePerfisArray implements IRepositorioDePerfis {
@@ -142,10 +142,11 @@ class RepositorioDePerfisArray implements IRepositorioDePerfis {
         this._perfis.push(perfil);
     }
 
-    consultar(id: number, nome: string, email: string): Perfil {
+    consultar(id?: number, nome?: string, email?: string): Perfil {
         let perfilConsultado!: Perfil;
+    
         for (let perfil of this._perfis) {
-            if(perfil.id == id) {
+            if(perfil.id == id || perfil.nome == nome || perfil.email == email) {
                 perfilConsultado = perfil;
                 break;
             }
@@ -192,8 +193,8 @@ class RepositorioDePostagensArray implements IRepositorioDePostagens {
 
     incluir(postagem: Postagem): void {
         this._postagens.push(postagem);
-        postagem.perfil.postagens.push(postagem);
-        console.log("Certo")
+       // postagem.perfil.postagens.push(postagem);
+        //console.log("Certo")
         /*
         if (perfilAssociado && perfilAssociado.postagens) {
             perfilAssociado.postagens.push(postagem);
@@ -279,6 +280,7 @@ class RedeSocial {
     
     consultarPerfil(id: number, nome: string, email: string): Perfil | null {
         return this._repPerfis.consultar(id, nome, email);
+        console.log(`TESTE: ${this._repPerfis.consultar(id, nome, email)}`)
     }
 
     incluirPostagem(postagem: Postagem): void {
@@ -299,7 +301,6 @@ class RedeSocial {
     }
 
     consultarPostagens(id: number, texto: string, hashtag: string, perfil: Perfil): Postagem[] | null {
-        
         let postagemConsultada = this._repPostagens.consultar(id, texto, hashtag, perfil);
         return postagemConsultada
     }
@@ -378,85 +379,28 @@ class App {
             opcao = input("Opção: ");
             switch (opcao) {
                 case "1":
-                    console.log("Incluir Perfil:" );
-                    let idPerfil: number = parseInt(input("ID do Perfil: "));
-                    let nomePerfil: string = input("Nome do Perfil: ");
-                    let emailPerfil: string = input("Email do Perfil: ");
-                    let novoperfil: Perfil = new Perfil(idPerfil, nomePerfil, emailPerfil);
-                    this._redeSocial.incluirPerfil(novoperfil);
-                    console.log(`Perfil ${novoperfil.nome} incluído com sucesso!`);
+                    this.incluirPerfil();
                     break;
                 case "2":
-                    console.log("2 - Consultar Perfil");
-                    let perfilConsultado = this.pedirPerfil();
-                    if(perfilConsultado != null) {
-                        console.log(`Perfil com ID ${perfilConsultado.id}, nome ${perfilConsultado.nome} e email ${perfilConsultado.email} encontrado!`);
-                    } else {
-                        console.log(`Nenhum Perfil encontrado com o(s) parâmetro(s) fornecido(s), refaça a consulta!`);
-                    }
+                    this.consultarPerfil();
                     break;
                 case "3":
-                    console.log("3 - Incluir Postagem");
-                    let idPostagem: number = parseInt(input("ID da Postagem: "));
-                    let textoPostagem: string = input("Texto da Postagem: ");
-                    let nomeperfildaPostagem: string = input("Qual o nome do Perfil?: ");
-                    let hashtagsdaPostagem: string = input("Escreva a(s) hashtags a serem cadastradas precedidas de #. Deixe um espaço entre as hashtags: ");
-                    let arrayhashtagsdaPostagem: string[] = hashtagsdaPostagem.replace("#", "").split(" ");
-                    let perfildaPostagem: Perfil = this._redeSocial.consultarPerfil(undefined, nomeperfildaPostagem, undefined);
-                    let avancada = arrayhashtagsdaPostagem.length > 0
-                    let novaPostagem;
-                    if (avancada) { // Verificando se tem hashtag na postagem
-                        novaPostagem = new PostagemAvancada(idPostagem, textoPostagem, 0, 0, new Date(), perfildaPostagem, arrayhashtagsdaPostagem, 2);    
-                    } else {
-                        novaPostagem = new Postagem(idPostagem, textoPostagem, 0, 0, new Date(), perfildaPostagem);    
-                    }
-                    this._redeSocial.incluirPostagem(novaPostagem);
-                    //console.log(`Postagem do Perfil ${novaPostagem.perfil.nome} incluída com sucesso`);
+                    this.incluirPostagem();
                     break;
                 case "4":
-                    console.log("4 - Consultar Postagem");
-                    let idPostagemConsultada: number = parseInt(input("ID da Postagem a ser consultada: "));
-                    let textoPostagemConsultada: string = input("Texto da Postagem a ser consultada: ");
-                    let hashtagPostagemConsultada: string = input("Hashtag da Postagem a ser consultada: ");
-                    let nomePerfilPostagemConsultada: string = input("Nome do Perfil da Postagem a ser consultada: ");
-                    let perfildaPostagemConsultada: Perfil = this._redeSocial.consultarPerfil(undefined, nomePerfilPostagemConsultada, undefined);
-                    let postagemConsultada = this._redeSocial.consultarPostagens(idPostagemConsultada, textoPostagemConsultada, hashtagPostagemConsultada, perfildaPostagemConsultada);
-                    console.log(postagemConsultada);
+                    this.consultarPostagem();
                     break;
                 case "5":
-                    console.log("5 - Curtir Postagem");
-                    let idCurtirPostagem: number = parseInt(input("ID da Postagem a ser curtida: "));
-                    this._redeSocial.curtir(idCurtirPostagem);
-                    console.log(`Postagem curtida ♥`);
+                    this.curtirPostagem();
                     break;
-
                 case "6":
-                    console.log("6 - Descurtir Postagem");
-                    let idDescurtirPostagem: number = parseInt(input("ID da Postagem a ser descurtida: "));
-                    this._redeSocial.descurtir(idDescurtirPostagem);
-                    console.log(`Postagem descurtida ☹`);
+                    this.descurtirPostagem();
                     break;
                 case "7":
-                    console.log("7 - Exibir Postagens Por Perfil");
-                    //Pedir perfil para o usuário
-                    let perfilDesejado = this.pedirPerfil();
-                    if (perfilDesejado == null) {
-                        break;
-                    }
-                    let idPerfilDesejado = perfilDesejado.id;
-                    let postagensDoPerfilDesejado = this._redeSocial.obterPostagensPorPerfil(idPerfilDesejado);
-                    postagensDoPerfilDesejado.forEach((post) => {
-                        this.exibirPostagem(post);
-                    })
+                    this.exibirPostagensPorPerfil();
                     break;
                 case "8":
-                    console.log("8 - Exibir Postagens Por Hashtag");
-                    // Pedir hashtag para o usuário
-                    let hashtagDesejada: string = input("Digite a hashtag desejada com #: ").replace("#", "")
-                    let postagens = this._redeSocial.obterPostagensPorHashtag(hashtagDesejada)
-                    postagens.forEach((post) => {
-                        this.exibirPostagem(post);
-                    });
+                    this.exibirPostagensPorHashtag();
                     break;
             }
             enter_para_continuar()
@@ -506,6 +450,96 @@ class App {
             console.log(`${post.visualizacoesRestantes} visualizações restantes.`)
         }
     }
+
+    public incluirPerfil() {
+        console.log("Incluir Perfil:" );
+        let idPerfil: number = parseInt(input("ID do Perfil: "));
+        let nomePerfil: string = input("Nome do Perfil: ");
+        let emailPerfil: string = input("Email do Perfil: ");
+        let novoperfil: Perfil = new Perfil(idPerfil, nomePerfil, emailPerfil);
+        this._redeSocial.incluirPerfil(novoperfil);
+        console.log(`Perfil ${novoperfil.nome} incluído com sucesso!`);
+    }
+
+    public consultarPerfil() {
+        console.log("2 - Consultar Perfil");
+        let perfilConsultado = this.pedirPerfil();
+        if(perfilConsultado != null) {
+            console.log(`Perfil com ID ${perfilConsultado.id}, nome ${perfilConsultado.nome} e email ${perfilConsultado.email} encontrado!`);
+        } else {
+            console.log(`Nenhum Perfil encontrado com o(s) parâmetro(s) fornecido(s), refaça a consulta!`);
+        }
+    }
+
+    public incluirPostagem() {
+        console.log("3 - Incluir Postagem");
+        let idPostagem: number = parseInt(input("ID da Postagem: "));
+        let textoPostagem: string = input("Texto da Postagem: ");
+        let nomeperfildaPostagem: string = input("Qual o nome do Perfil?: ");
+        let hashtagsdaPostagem: string = input("Escreva a(s) hashtags a serem cadastradas precedidas de #. Deixe um espaço entre as hashtags: ");
+        let arrayhashtagsdaPostagem: string[] = hashtagsdaPostagem.replace(/^#/, "").split("#");
+        arrayhashtagsdaPostagem = arrayhashtagsdaPostagem.map(hashtag => hashtag.trim());
+        let perfildaPostagem: Perfil = this._redeSocial.consultarPerfil(undefined, nomeperfildaPostagem, undefined);
+        let avancada = arrayhashtagsdaPostagem.length > 0
+        let novaPostagem;
+        if (avancada) { // Verificando se tem hashtag na postagem
+            novaPostagem = new PostagemAvancada(idPostagem, textoPostagem, 0, 0, new Date(), perfildaPostagem, arrayhashtagsdaPostagem, 2);    
+        } else {
+            novaPostagem = new Postagem(idPostagem, textoPostagem, 0, 0, new Date(), perfildaPostagem);    
+        }
+        this._redeSocial.incluirPostagem(novaPostagem);
+        //console.log(`Postagem do Perfil ${novaPostagem.perfil.nome} incluída com sucesso`);
+    }
+
+    public consultarPostagem() {
+        console.log("4 - Consultar Postagem");
+        let idPostagemConsultada: number = parseInt(input("ID da Postagem a ser consultada: "));
+        let textoPostagemConsultada: string = input("Texto da Postagem a ser consultada: ");
+        let hashtagPostagemConsultada: string = input("Hashtag da Postagem a ser consultada: ");
+        let nomePerfilPostagemConsultada: string = input("Nome do Perfil da Postagem a ser consultada: ");
+        let perfildaPostagemConsultada: Perfil = this._redeSocial.consultarPerfil(undefined, nomePerfilPostagemConsultada, undefined);
+        let postagemConsultada = this._redeSocial.consultarPostagens(idPostagemConsultada, textoPostagemConsultada, hashtagPostagemConsultada, perfildaPostagemConsultada);
+        console.log(postagemConsultada);
+        console.log(this._redeSocial.consultarPerfil(undefined, nomePerfilPostagemConsultada, undefined));
+    }
+
+    public curtirPostagem() {
+        console.log("5 - Curtir Postagem");
+        let idCurtirPostagem: number = parseInt(input("ID da Postagem a ser curtida: "));
+        this._redeSocial.curtir(idCurtirPostagem);
+        console.log(`Postagem curtida ♥`);
+    }
+
+    public descurtirPostagem() {
+        console.log("6 - Descurtir Postagem");
+        let idDescurtirPostagem: number = parseInt(input("ID da Postagem a ser descurtida: "));
+        this._redeSocial.descurtir(idDescurtirPostagem);
+        console.log(`Postagem descurtida ☹`);
+    }
+
+    public exibirPostagensPorPerfil() {
+        console.log("7 - Exibir Postagens Por Perfil");
+        //Pedir perfil para o usuário
+        let perfilDesejado = this.pedirPerfil();
+        if (perfilDesejado != null) {
+            let idPerfilDesejado = perfilDesejado.id;
+            let postagensDoPerfilDesejado = this._redeSocial.obterPostagensPorPerfil(idPerfilDesejado);
+            postagensDoPerfilDesejado.forEach((post) => {
+                this.exibirPostagem(post);
+            })
+        }
+    }
+
+    public exibirPostagensPorHashtag() {
+        console.log("8 - Exibir Postagens Por Hashtag");
+        // Pedir hashtag para o usuário
+        let hashtagDesejada: string = input("Digite a hashtag desejada com #: ").replace(/^#/, "")
+        let postagens = this._redeSocial.obterPostagensPorHashtag(hashtagDesejada)
+        postagens.forEach((post) => {
+            this.exibirPostagem(post);
+        });
+    }
+    
     /*
     // Salvando os Perfis no arquivo ../backup_perfis.txt na ordem: id, nome, email e postagens.
     public salvarPerfisEmArquivo(): void {
