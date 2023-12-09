@@ -154,52 +154,6 @@ class RepositorioDePerfisArray implements IRepositorioDePerfis {
         return perfilConsultado;
     }
 }
-
-class Nodo {
-    perfil: Perfil;
-    proximo: Nodo | null;
-
-    constructor (perfil: Perfil) {
-        this.perfil = perfil;
-        this.proximo = null;
-    }
-}
-
-class RepositorioListaDePerfis implements IRepositorioDePerfis {
-    private cabeca: Nodo | null;
-
-    constructor() {
-        this.cabeca = null;
-    }
-
-    incluir(perfil: Perfil): void {
-        const novoNodo = new Nodo(perfil);
-
-        if (this.cabeca == null) {
-            this.cabeca = novoNodo;
-        } else {
-            let atual = this.cabeca;
-
-            while (atual.proximo != null) {
-                atual = atual.proximo;
-            }
-            atual.proximo = novoNodo;
-        }
-    }
-
-    consultar(id?: number, nome?: string, email?: string): Perfil {
-        let atual = this.cabeca;
-
-        while (atual != null) {
-            if (atual.perfil.id == id || atual.perfil.nome == nome || atual.perfil.email == email) {
-                return atual.perfil;
-            }
-            atual = atual.proximo;
-        }
-        return null;
-    }
-}
-
 /*
 class RepositorioDePerfis {
 // 03) a)
@@ -264,59 +218,6 @@ class RepositorioDePostagensArray implements IRepositorioDePostagens {
             }
         }
         return postagensFiltradas
-    }
-}
-
-class NodoPostagem {
-    postagem: Postagem;
-    proximo: NodoPostagem | null;
-
-    constructor(postagem: Postagem) {
-        this.postagem = postagem;
-        this.proximo = null;
-    }
-}
-
-class RepositorioListaDePostagens implements IRepositorioDePostagens {
-    private cabeca: NodoPostagem | null;
-
-    constructor() {
-        this.cabeca = null;
-    }
-
-    incluir(postagem: Postagem): void {
-        const novoNodo = new NodoPostagem(postagem);
-
-        if (this.cabeca === null) {
-            this.cabeca = novoNodo;
-        } else {
-            let atual: NodoPostagem | null = this.cabeca;
-
-            while (atual.proximo !== null) {
-                atual = atual.proximo;
-            }
-            atual.proximo = novoNodo;
-        }
-    }
-
-    consultar(id?: number, texto?: string, hashtag?: string, perfil?: Perfil): Postagem[] | null {
-        let postagensFiltradas: Postagem[] = [];
-        let atual: NodoPostagem | null = this.cabeca;
-
-        while (atual !== null) {
-            const postagemAtual = atual.postagem;
-
-            if (
-                postagemAtual.id === id ||
-                postagemAtual.texto === texto ||
-                (postagemAtual instanceof PostagemAvancada && postagemAtual.existeHashtag(hashtag)) ||
-                postagemAtual.perfil === perfil
-            ) {
-                postagensFiltradas.push(postagemAtual);
-            }
-            atual = atual.proximo;
-        }
-        return postagensFiltradas.length > 0 ? postagensFiltradas : null;
     }
 }
 /*
@@ -451,21 +352,11 @@ class RedeSocial {
     }
 }
 class App {
-    private _redeSocial: RedeSocial; 
-    private _redeSocial2: RedeSocial;
+    private _redeSocial: RedeSocial = new RedeSocial(new RepositorioDePerfisArray(), new RepositorioDePostagensArray());
     private CAMINHO_ARQUIVO_PERFIS: string = "../backup_perfis.txt";
     private CAMINHO_ARQUIVO_POSTAGENS: string = "../backup_postagens.txt";
-    private _mecanismoPersistencia: string;
-    
 
-    constructor(mecanismoPersistencia: string) {
-        if (mecanismoPersistencia == '1') {
-            this._redeSocial = new RedeSocial(new RepositorioDePerfisArray(), new RepositorioDePostagensArray());
-        } else if (mecanismoPersistencia == '2') {
-            this._redeSocial2 = new RedeSocial(new RepositorioListaDePerfis(), new RepositorioListaDePostagens());
-        } else {
-            throw new Error('Mecanismo de persistencia invalido.')
-        }
+    constructor() {
         //this.carregarPerfisDeArquivo();
         // this.carregarPostagensDeArquivo();
     }
@@ -731,10 +622,6 @@ class App {
         }
     }*/
 }
-console.log('1 - Array\n' + 
-            '2 - Lista Encadeada');
-let mecanismoPersistencia = input('Escolher mecanismo de persitencia do App: ')
-let app = new App(mecanismoPersistencia);
 
 class AplicacaoError extends Error {
     constructor(message: string) {

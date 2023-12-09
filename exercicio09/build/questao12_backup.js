@@ -122,40 +122,6 @@ class RepositorioDePerfisArray {
         return perfilConsultado;
     }
 }
-class Nodo {
-    constructor(perfil) {
-        this.perfil = perfil;
-        this.proximo = null;
-    }
-}
-class RepositorioListaDePerfis {
-    constructor() {
-        this.cabeca = null;
-    }
-    incluir(perfil) {
-        const novoNodo = new Nodo(perfil);
-        if (this.cabeca == null) {
-            this.cabeca = novoNodo;
-        }
-        else {
-            let atual = this.cabeca;
-            while (atual.proximo != null) {
-                atual = atual.proximo;
-            }
-            atual.proximo = novoNodo;
-        }
-    }
-    consultar(id, nome, email) {
-        let atual = this.cabeca;
-        while (atual != null) {
-            if (atual.perfil.id == id || atual.perfil.nome == nome || atual.perfil.email == email) {
-                return atual.perfil;
-            }
-            atual = atual.proximo;
-        }
-        return null;
-    }
-}
 class RepositorioDePostagensArray {
     constructor() {
         this._postagens = [];
@@ -191,45 +157,6 @@ class RepositorioDePostagensArray {
             }
         }
         return postagensFiltradas;
-    }
-}
-class NodoPostagem {
-    constructor(postagem) {
-        this.postagem = postagem;
-        this.proximo = null;
-    }
-}
-class RepositorioListaDePostagens {
-    constructor() {
-        this.cabeca = null;
-    }
-    incluir(postagem) {
-        const novoNodo = new NodoPostagem(postagem);
-        if (this.cabeca === null) {
-            this.cabeca = novoNodo;
-        }
-        else {
-            let atual = this.cabeca;
-            while (atual.proximo !== null) {
-                atual = atual.proximo;
-            }
-            atual.proximo = novoNodo;
-        }
-    }
-    consultar(id, texto, hashtag, perfil) {
-        let postagensFiltradas = [];
-        let atual = this.cabeca;
-        while (atual !== null) {
-            const postagemAtual = atual.postagem;
-            if (postagemAtual.id === id ||
-                postagemAtual.texto === texto ||
-                (postagemAtual instanceof PostagemAvancada && postagemAtual.existeHashtag(hashtag)) ||
-                postagemAtual.perfil === perfil) {
-                postagensFiltradas.push(postagemAtual);
-            }
-            atual = atual.proximo;
-        }
-        return postagensFiltradas.length > 0 ? postagensFiltradas : null;
     }
 }
 /*
@@ -353,7 +280,6 @@ class RedeSocial {
 class App {
     constructor() {
         this._redeSocial = new RedeSocial(new RepositorioDePerfisArray(), new RepositorioDePostagensArray());
-        this._redeSocia2 = new RedeSocial(new RepositorioListaDePerfis(), new RepositorioListaDePostagens());
         this.CAMINHO_ARQUIVO_PERFIS = "../backup_perfis.txt";
         this.CAMINHO_ARQUIVO_POSTAGENS = "../backup_postagens.txt";
         //this.carregarPerfisDeArquivo();
@@ -582,4 +508,4 @@ function enter_para_continuar() {
     input('Press <enter> to continue ...');
     limpar_tela();
 }
-//# sourceMappingURL=questao12.js.map
+//# sourceMappingURL=questao12_backup.js.map
