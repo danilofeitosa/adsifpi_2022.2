@@ -205,13 +205,12 @@ class RedeSocial {
     //05) b) i)
     incluirPerfil(perfil) {
         if (this._repPerfis.consultar(perfil.id, perfil.nome, perfil.email)) {
-            throw new Error("Perfil ja cadastrado.");
+            throw new PerfilJaCadastrado();
         }
         return this._repPerfis.incluir(perfil);
     }
     consultarPerfil(id, nome, email) {
         return this._repPerfis.consultar(id, nome, email);
-        console.log(`TESTE: ${this._repPerfis.consultar(id, nome, email)}`);
     }
     incluirPostagem(postagem) {
         this._repPostagens.incluir(postagem);
@@ -301,31 +300,43 @@ class App {
                 '7 - Exibir Postagens por Perfil\n' +
                 '8 - Exibir Postagens por Hashtag');
             opcao = input("Opção: ");
-            switch (opcao) {
-                case "1":
-                    this.incluirPerfil();
-                    break;
-                case "2":
-                    this.consultarPerfil();
-                    break;
-                case "3":
-                    this.incluirPostagem();
-                    break;
-                case "4":
-                    this.consultarPostagem();
-                    break;
-                case "5":
-                    this.curtirPostagem();
-                    break;
-                case "6":
-                    this.descurtirPostagem();
-                    break;
-                case "7":
-                    this.exibirPostagensPorPerfil();
-                    break;
-                case "8":
-                    this.exibirPostagensPorHashtag();
-                    break;
+            try {
+                switch (opcao) {
+                    case "1":
+                        this.incluirPerfil();
+                        break;
+                    case "2":
+                        this.consultarPerfil();
+                        break;
+                    case "3":
+                        this.incluirPostagem();
+                        break;
+                    case "4":
+                        this.consultarPostagem();
+                        break;
+                    case "5":
+                        this.curtirPostagem();
+                        break;
+                    case "6":
+                        this.descurtirPostagem();
+                        break;
+                    case "7":
+                        this.exibirPostagensPorPerfil();
+                        break;
+                    case "8":
+                        this.exibirPostagensPorHashtag();
+                        break;
+                }
+            }
+            catch (error) {
+                if (error instanceof AplicacaoError) {
+                    console.log(error.message);
+                }
+                /*
+                if (error instanceof PerfilJaCadastrado) {
+                    console.log(`ID ja cadastrado`)
+                }
+                */
             }
             enter_para_continuar();
             limpar_tela();
@@ -379,13 +390,13 @@ class App {
         let emailPerfil = input("Email do Perfil: ");
         let novoperfil = new Perfil(idPerfil, nomePerfil, emailPerfil);
         this._redeSocial.incluirPerfil(novoperfil);
-        console.log(`Perfil ${novoperfil.nome} incluído com sucesso!`);
+        console.log(`Perfil { ${novoperfil.nome} } incluído com sucesso!`);
     }
     consultarPerfil() {
         console.log("2 - Consultar Perfil");
         let perfilConsultado = this.pedirPerfil();
         if (perfilConsultado != null) {
-            console.log(`Perfil com ID ${perfilConsultado.id}, nome ${perfilConsultado.nome} e email ${perfilConsultado.email} encontrado!`);
+            console.log(`Perfil com ID { ${perfilConsultado.id} }, nome { ${perfilConsultado.nome} } e email { ${perfilConsultado.email} } encontrado!`);
         }
         else {
             console.log(`Nenhum Perfil encontrado com o(s) parâmetro(s) fornecido(s), refaça a consulta!`);
@@ -395,18 +406,22 @@ class App {
         console.log("3 - Incluir Postagem");
         let idPostagem = parseInt(input("ID da Postagem: "));
         let textoPostagem = input("Texto da Postagem: ");
-        let nomeperfildaPostagem = input("Qual o nome do Perfil?: ");
-        let hashtagsdaPostagem = input("Escreva a(s) hashtags a serem cadastradas precedidas de #. Deixe um espaço entre as hashtags: ");
-        let arrayhashtagsdaPostagem = hashtagsdaPostagem.replace(/^#/, "").split("#");
-        arrayhashtagsdaPostagem = arrayhashtagsdaPostagem.map(hashtag => hashtag.trim());
-        let perfildaPostagem = this._redeSocial.consultarPerfil(undefined, nomeperfildaPostagem, undefined);
-        let avancada = arrayhashtagsdaPostagem.length > 0;
+        let nomePerfilDaPostagem = input("Qual o nome do Perfil?: ");
+        let perfilDaPostagem = this._redeSocial.consultarPerfil(undefined, nomePerfilDaPostagem, undefined);
+        while (perfilDaPostagem == undefined) {
+            nomePerfilDaPostagem = input("Digite um nome de Perfil existente: ");
+            perfilDaPostagem = this._redeSocial.consultarPerfil(undefined, nomePerfilDaPostagem, undefined);
+        }
+        let hashtagsDaPostagem = input("Escreva a(s) hashtags a serem cadastradas precedidas de #. Deixe um espaço entre as hashtags: ");
+        let arrayHashtagsDaPostagem = hashtagsDaPostagem.replace(/^#/, "").split("#");
+        arrayHashtagsDaPostagem = arrayHashtagsDaPostagem.map(hashtag => hashtag.trim());
+        let avancada = arrayHashtagsDaPostagem.length > 0;
         let novaPostagem;
         if (avancada) { // Verificando se tem hashtag na postagem
-            novaPostagem = new PostagemAvancada(idPostagem, textoPostagem, 0, 0, new Date(), perfildaPostagem, arrayhashtagsdaPostagem, 2);
+            novaPostagem = new PostagemAvancada(idPostagem, textoPostagem, 0, 0, new Date(), perfilDaPostagem, arrayHashtagsDaPostagem, 2);
         }
         else {
-            novaPostagem = new Postagem(idPostagem, textoPostagem, 0, 0, new Date(), perfildaPostagem);
+            novaPostagem = new Postagem(idPostagem, textoPostagem, 0, 0, new Date(), perfilDaPostagem);
         }
         this._redeSocial.incluirPostagem(novaPostagem);
         //console.log(`Postagem do Perfil ${novaPostagem.perfil.nome} incluída com sucesso`);
@@ -454,6 +469,31 @@ class App {
         postagens.forEach((post) => {
             this.exibirPostagem(post);
         });
+    }
+}
+class AplicacaoError extends Error {
+    constructor(message) {
+        super(message);
+    }
+}
+class PerfilInexistente extends AplicacaoError {
+    constructor(message = 'Perfil nao existe com o parametro informado') {
+        super(message);
+    }
+}
+class PerfilJaCadastrado extends AplicacaoError {
+    constructor(message = 'ID Perfil ja cadastrado.') {
+        super(message);
+    }
+}
+class PostagemJaCadastrada extends AplicacaoError {
+    constructor(message = 'ID Postagem ja cadastrada.') {
+        super(message);
+    }
+}
+class PostagemInexistente extends AplicacaoError {
+    constructor(message = 'Postagem inexistente com o parametro informado.') {
+        super(message);
     }
 }
 function main() {
