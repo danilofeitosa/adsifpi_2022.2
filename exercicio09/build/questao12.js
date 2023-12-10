@@ -128,7 +128,7 @@ class Nodo {
         this.proximo = null;
     }
 }
-class RepositorioListaDePerfis {
+class RepositorioDePerfisLista {
     constructor() {
         this.cabeca = null;
     }
@@ -199,7 +199,7 @@ class NodoPostagem {
         this.proximo = null;
     }
 }
-class RepositorioListaDePostagens {
+class RepositorioDePostagensLista {
     constructor() {
         this.cabeca = null;
     }
@@ -351,11 +351,23 @@ class RedeSocial {
     }
 }
 class App {
-    constructor() {
-        this._redeSocial = new RedeSocial(new RepositorioDePerfisArray(), new RepositorioDePostagensArray());
-        this._redeSocia2 = new RedeSocial(new RepositorioListaDePerfis(), new RepositorioListaDePostagens());
+    constructor(mecanismoPersistencia) {
+        this.mecanismoPersistencia = mecanismoPersistencia;
         this.CAMINHO_ARQUIVO_PERFIS = "../backup_perfis.txt";
         this.CAMINHO_ARQUIVO_POSTAGENS = "../backup_postagens.txt";
+        try {
+            if (mecanismoPersistencia == 1) {
+                this._redeSocial = new RedeSocial(new RepositorioDePerfisArray(), new RepositorioDePostagensArray());
+            }
+            else if (mecanismoPersistencia == 2) {
+                this._redeSocial = new RedeSocial(new RepositorioDePerfisLista(), new RepositorioDePostagensLista());
+            }
+        }
+        catch (error) {
+            if (error instanceof OpcaoInvalida) {
+                console.log(error.message);
+            }
+        }
         //this.carregarPerfisDeArquivo();
         // this.carregarPostagensDeArquivo();
     }
@@ -570,8 +582,19 @@ class PostagemInexistente extends AplicacaoError {
         super(message);
     }
 }
+class OpcaoInvalida extends AplicacaoError {
+    constructor(message = 'Escolha uma opcao valida.') {
+        super(message);
+    }
+}
 function main() {
-    let meuApp = new App();
+    console.log('1 - Array\n' +
+        '2 - Lista Encadeada');
+    let mecanismoPersistencia = Number(input('Escolher mecanismo de persitencia do App: '));
+    while (mecanismoPersistencia < 0 || mecanismoPersistencia > 2) {
+        mecanismoPersistencia = Number(input('Escolha um numero valido: '));
+    }
+    let meuApp = new App(mecanismoPersistencia);
     meuApp.exibirmenu();
 }
 main();

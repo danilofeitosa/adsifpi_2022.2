@@ -165,7 +165,7 @@ class Nodo {
     }
 }
 
-class RepositorioListaDePerfis implements IRepositorioDePerfis {
+class RepositorioDePerfisLista implements IRepositorioDePerfis {
     private cabeca: Nodo | null;
 
     constructor() {
@@ -277,7 +277,7 @@ class NodoPostagem {
     }
 }
 
-class RepositorioListaDePostagens implements IRepositorioDePostagens {
+class RepositorioDePostagensLista implements IRepositorioDePostagens {
     private cabeca: NodoPostagem | null;
 
     constructor() {
@@ -452,19 +452,20 @@ class RedeSocial {
 }
 class App {
     private _redeSocial: RedeSocial; 
-    private _redeSocial2: RedeSocial;
     private CAMINHO_ARQUIVO_PERFIS: string = "../backup_perfis.txt";
     private CAMINHO_ARQUIVO_POSTAGENS: string = "../backup_postagens.txt";
-    private _mecanismoPersistencia: string;
-    
 
-    constructor(mecanismoPersistencia: string) {
-        if (mecanismoPersistencia == '1') {
-            this._redeSocial = new RedeSocial(new RepositorioDePerfisArray(), new RepositorioDePostagensArray());
-        } else if (mecanismoPersistencia == '2') {
-            this._redeSocial2 = new RedeSocial(new RepositorioListaDePerfis(), new RepositorioListaDePostagens());
-        } else {
-            throw new Error('Mecanismo de persistencia invalido.')
+    constructor(private mecanismoPersistencia: number) {
+        try{
+            if (mecanismoPersistencia == 1) {
+                this._redeSocial = new RedeSocial(new RepositorioDePerfisArray(), new RepositorioDePostagensArray());
+            } else if (mecanismoPersistencia == 2) {
+                this._redeSocial = new RedeSocial(new RepositorioDePerfisLista(), new RepositorioDePostagensLista());
+            }
+        } catch(error: any) {
+            if (error instanceof OpcaoInvalida) {
+                console.log(error.message);
+            }
         }
         //this.carregarPerfisDeArquivo();
         // this.carregarPostagensDeArquivo();
@@ -731,43 +732,51 @@ class App {
         }
     }*/
 }
-console.log('1 - Array\n' + 
-            '2 - Lista Encadeada');
-let mecanismoPersistencia = input('Escolher mecanismo de persitencia do App: ')
-let app = new App(mecanismoPersistencia);
 
 class AplicacaoError extends Error {
-    constructor(message: string) {
+    constructor (message: string) {
         super(message);
     }
 }
 
 class PerfilInexistente extends AplicacaoError {
-    constructor(message: string = 'Perfil nao existe com o parametro informado') {
+    constructor (message: string = 'Perfil nao existe com o parametro informado') {
         super(message);
     }
 }
 
 class PerfilJaCadastrado extends AplicacaoError {
-    constructor(message: string = 'ID Perfil ja cadastrado.') {
+    constructor (message: string = 'ID Perfil ja cadastrado.') {
         super(message);
     }
 }
 
 class PostagemJaCadastrada extends AplicacaoError {
-    constructor(message: string = 'ID Postagem ja cadastrada.') {
+    constructor (message: string = 'ID Postagem ja cadastrada.') {
         super(message);
     }
 }
 
 class PostagemInexistente extends AplicacaoError {
-    constructor(message: string = 'Postagem inexistente com o parametro informado.') {
+    constructor (message: string = 'Postagem inexistente com o parametro informado.') {
+        super(message);
+    }
+}
+
+class OpcaoInvalida extends AplicacaoError {
+    constructor (message: string = 'Escolha uma opcao valida.') {
         super(message);
     }
 }
 
 function main() {
-    let meuApp: App = new App()
+    console.log('1 - Array\n' + 
+                '2 - Lista Encadeada');
+    let mecanismoPersistencia = Number(input('Escolher mecanismo de persitencia do App: '))
+    while (mecanismoPersistencia < 0 || mecanismoPersistencia > 2) {
+        mecanismoPersistencia = Number(input('Escolha um numero valido: '))
+    }
+    let meuApp = new App(mecanismoPersistencia);
     meuApp.exibirmenu()
 }
 
