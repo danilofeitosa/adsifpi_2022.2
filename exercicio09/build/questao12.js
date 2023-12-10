@@ -184,7 +184,7 @@ class RepositorioDePostagensArray {
                     postagensFiltradas.push(postagemConsultada);
                 }
             }
-            else {
+            else if (postagemConsultada instanceof Postagem) {
                 if (postagemConsultada.id == id || postagemConsultada.texto == texto || postagemConsultada.perfil == perfil) {
                     postagensFiltradas.push(postagemConsultada);
                 }
@@ -286,7 +286,7 @@ class RedeSocial {
         return this._repPerfis.consultar(id, nome, email);
     }
     incluirPostagem(postagem) {
-        this._repPostagens.incluir(postagem);
+        return this._repPostagens.incluir(postagem);
         /*
         if(this._repPostagens.consultar(postagem.id, postagem.texto).length <= 0) {
             this._repPostagens.incluir(postagem);
@@ -418,11 +418,6 @@ class App {
                 if (error instanceof AplicacaoError) {
                     console.log(error.message);
                 }
-                /*
-                if (error instanceof PerfilJaCadastrado) {
-                    console.log(`ID ja cadastrado`)
-                }
-                */
             }
             enter_para_continuar();
             limpar_tela();
@@ -455,14 +450,14 @@ class App {
         return perfilConsultado;
     }
     exibirPostagem(post) {
-        console.log(`Exibindo Postagem de ID ${post.id}`);
+        console.log(`Exibindo Postagem de ID { ${post.id} }:`);
         console.log(`Escrita por ${post.perfil.nome} em ${post.data.toISOString()}`);
         console.log(post.texto);
         console.log(`${post.curtidas} curtidas - ${post.descurtidas} descurtidas`);
         if (post instanceof PostagemAvancada) {
             let hashtagString = "";
             post.hashtag.forEach((hashtag) => {
-                hashtagString += hashtag + " ";
+                hashtagString += '#' + hashtag + " ";
             });
             console.log(`Hashtags: ${hashtagString}`);
             post.decrementarVisualizacoes();
@@ -471,13 +466,33 @@ class App {
     }
     incluirPerfil() {
         console.log("Incluir Perfil:");
-        let idPerfil = parseInt(input("ID do Perfil: "));
-        let nomePerfil = input("Nome do Perfil: ");
-        let emailPerfil = input("Email do Perfil: ");
+        let idPerfil;
+        do {
+            idPerfil = parseInt(input("ID do Perfil: "));
+        } while (isNaN(idPerfil));
+        let nomePerfil;
+        do {
+            nomePerfil = input("Nome do Perfil: ");
+        } while (nomePerfil == "" || nomePerfil == " " || /^\D+$/.test(nomePerfil) == false);
+        let emailPerfil;
+        do {
+            emailPerfil = input("Email do Perfil: ");
+        } while (emailPerfil == "" || emailPerfil == " " || !emailPerfil.includes("@"));
         let novoperfil = new Perfil(idPerfil, nomePerfil, emailPerfil);
         this._redeSocial.incluirPerfil(novoperfil);
         console.log(`Perfil { ${novoperfil.nome} } incluído com sucesso!`);
     }
+    /*
+    public incluirPerfil() {
+        console.log("Incluir Perfil:" );
+        let idPerfil: number = parseInt(input("ID do Perfil: "));
+        let nomePerfil: string = input("Nome do Perfil: ");
+        let emailPerfil: string = input("Email do Perfil: ");
+        let novoperfil: Perfil = new Perfil(idPerfil, nomePerfil, emailPerfil);
+        this._redeSocial.incluirPerfil(novoperfil);
+        console.log(`Perfil { ${novoperfil.nome} } incluído com sucesso!`);
+    }
+    */
     consultarPerfil() {
         console.log("2 - Consultar Perfil");
         let perfilConsultado = this.pedirPerfil();
@@ -493,11 +508,7 @@ class App {
         let idPostagem = parseInt(input("ID da Postagem: "));
         let textoPostagem = input("Texto da Postagem: ");
         let nomePerfilDaPostagem = input("Qual o nome do Perfil?: ");
-        let perfilDaPostagem = this._redeSocial.consultarPerfil(undefined, nomePerfilDaPostagem, undefined);
-        while (perfilDaPostagem == undefined) {
-            nomePerfilDaPostagem = input("Digite um nome de Perfil existente: ");
-            perfilDaPostagem = this._redeSocial.consultarPerfil(undefined, nomePerfilDaPostagem, undefined);
-        }
+        let perfilDaPostagem = this.validarPerfil(nomePerfilDaPostagem);
         let hashtagsDaPostagem = input("Escreva a(s) hashtags a serem cadastradas precedidas de #. Deixe um espaço entre as hashtags: ");
         let arrayHashtagsDaPostagem = hashtagsDaPostagem.replace(/^#/, "").split("#");
         arrayHashtagsDaPostagem = arrayHashtagsDaPostagem.map(hashtag => hashtag.trim());
@@ -510,7 +521,15 @@ class App {
             novaPostagem = new Postagem(idPostagem, textoPostagem, 0, 0, new Date(), perfilDaPostagem);
         }
         this._redeSocial.incluirPostagem(novaPostagem);
-        //console.log(`Postagem do Perfil ${novaPostagem.perfil.nome} incluída com sucesso`);
+        console.log(`Postagem com ID { ${novaPostagem.id} } incluida ao Perfil { ${novaPostagem.perfil.nome} }.`);
+    }
+    validarPerfil(nomePerfilDaPostagem) {
+        let perfilDaPostagem = this._redeSocial.consultarPerfil(undefined, nomePerfilDaPostagem, undefined);
+        while (perfilDaPostagem == undefined) {
+            nomePerfilDaPostagem = input("Digite um nome de Perfil existente: ");
+            perfilDaPostagem = this._redeSocial.consultarPerfil(undefined, nomePerfilDaPostagem, undefined);
+        }
+        return perfilDaPostagem;
     }
     consultarPostagem() {
         console.log("4 - Consultar Postagem");
@@ -554,6 +573,7 @@ class App {
         let postagens = this._redeSocial.obterPostagensPorHashtag(hashtagDesejada);
         postagens.forEach((post) => {
             this.exibirPostagem(post);
+            console.log();
         });
     }
 }
