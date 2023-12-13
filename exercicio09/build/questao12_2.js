@@ -231,7 +231,9 @@ class RepositorioDePostagensArray {
                 }
             }
         }
-        return postagensFiltradas;
+        if (postagensFiltradas.length > 0) {
+            return postagensFiltradas;
+        }
     }
 }
 class NodoPostagem {
@@ -295,14 +297,22 @@ class RedeSocial {
         return this._repPerfis.incluir(perfil);
     }
     consultarPerfil(id, nome, email) {
+        if (!this._repPerfis.consultar(id, nome, email)) {
+            throw new PerfilInexistente();
+        }
         return this._repPerfis.consultar(id, nome, email);
     }
     incluirPostagem(postagem) {
+        if (this._repPostagens.consultar(postagem.id, postagem.texto, undefined, postagem.perfil)) {
+            throw new PostagemJaCadastrada();
+        }
         return this._repPostagens.incluir(postagem);
     }
     consultarPostagens(id, texto, hashtag, perfil) {
-        let postagemConsultada = this._repPostagens.consultar(id, texto, hashtag, perfil);
-        return postagemConsultada;
+        if (!this._repPostagens.consultar(id, texto, hashtag, perfil)) {
+            throw new PostagemInexistente();
+        }
+        return this._repPostagens.consultar(id, texto, hashtag, perfil);
     }
     curtir(idPostagem) {
         let postagemProcurada = this._repPostagens.consultar(idPostagem);
@@ -514,10 +524,10 @@ class App {
         let textoPostagemConsultada = input("Texto da Postagem a ser consultada: ");
         let hashtagPostagemConsultada = input("Hashtag da Postagem a ser consultada: ");
         let nomePerfilPostagemConsultada = input("Nome do Perfil da Postagem a ser consultada: ");
-        let perfildaPostagemConsultada = this._redeSocial.consultarPerfil(undefined, nomePerfilPostagemConsultada, undefined);
+        let perfildaPostagemConsultada = this._redeSocial.repPerfis.consultar(undefined, nomePerfilPostagemConsultada, undefined);
         let postagemConsultada = this._redeSocial.consultarPostagens(idPostagemConsultada, textoPostagemConsultada, hashtagPostagemConsultada, perfildaPostagemConsultada);
         console.log(postagemConsultada);
-        console.log(this._redeSocial.consultarPerfil(undefined, nomePerfilPostagemConsultada, undefined));
+        //console.log(this._redeSocial.consultarPerfil(undefined, nomePerfilPostagemConsultada, undefined));
     }
     curtirPostagem() {
         console.log("5 - Curtir Postagem");

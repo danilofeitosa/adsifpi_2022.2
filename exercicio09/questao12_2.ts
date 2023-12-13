@@ -251,6 +251,7 @@ class RepositorioDePostagensArray implements IRepositorioDePostagens {
 
     consultar(id?: number, texto?: string, hashtag?: string, perfil?: Perfil): Postagem[] | null {
         let postagensFiltradas: Postagem[] = []
+
         for (let postagemConsultada of this._postagens) {
             if(postagemConsultada instanceof PostagemAvancada) {
                 if (postagemConsultada.id == id || postagemConsultada.texto == texto || postagemConsultada.existeHashtag(hashtag) || postagemConsultada.perfil == perfil) {
@@ -262,7 +263,10 @@ class RepositorioDePostagensArray implements IRepositorioDePostagens {
                 }
             }
         }
-        return postagensFiltradas
+
+        if (postagensFiltradas.length > 0) {
+            return postagensFiltradas;
+        }
     }
     /*
     obterArrayDePostagens(): Postagem[] {
@@ -368,16 +372,24 @@ class RedeSocial {
     }
     
     consultarPerfil(id: number, nome: string, email: string): Perfil | null {
+        if(!this._repPerfis.consultar(id, nome, email)) {
+            throw new PerfilInexistente();
+        }
         return this._repPerfis.consultar(id, nome, email);
     }
 
     incluirPostagem(postagem: Postagem): void {
+        if(this._repPostagens.consultar(postagem.id, postagem.texto, undefined, postagem.perfil)) {
+            throw new PostagemJaCadastrada();
+        }
         return this._repPostagens.incluir(postagem);
     }
 
-    consultarPostagens(id: number, texto: string, hashtag: string, perfil: Perfil): Postagem[] | null {
-        let postagemConsultada = this._repPostagens.consultar(id, texto, hashtag, perfil);
-        return postagemConsultada
+    consultarPostagens(id: number, texto: string, hashtag: string, perfil: Perfil): Postagem[] {
+        if(!this._repPostagens.consultar(id, texto, hashtag, perfil)) {
+            throw new PostagemInexistente();
+        }
+        return this._repPostagens.consultar(id, texto, hashtag, perfil); 
     }
 
     curtir(idPostagem: number) {
@@ -598,10 +610,10 @@ class App {
         let textoPostagemConsultada: string = input("Texto da Postagem a ser consultada: ");
         let hashtagPostagemConsultada: string = input("Hashtag da Postagem a ser consultada: ");
         let nomePerfilPostagemConsultada: string = input("Nome do Perfil da Postagem a ser consultada: ");
-        let perfildaPostagemConsultada: Perfil = this._redeSocial.consultarPerfil(undefined, nomePerfilPostagemConsultada, undefined);
+        let perfildaPostagemConsultada: Perfil = this._redeSocial.repPerfis.consultar(undefined, nomePerfilPostagemConsultada, undefined);
         let postagemConsultada = this._redeSocial.consultarPostagens(idPostagemConsultada, textoPostagemConsultada, hashtagPostagemConsultada, perfildaPostagemConsultada);
         console.log(postagemConsultada);
-        console.log(this._redeSocial.consultarPerfil(undefined, nomePerfilPostagemConsultada, undefined));
+        //console.log(this._redeSocial.consultarPerfil(undefined, nomePerfilPostagemConsultada, undefined));
     }
 
     public curtirPostagem() {
