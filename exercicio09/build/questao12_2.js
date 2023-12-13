@@ -345,11 +345,12 @@ class RedeSocial {
     obterPostagensPorHashtag(hashtag) {
         // Obter postagens com a hashtag
         let postagens = this.repPostagens.consultar(undefined, undefined, hashtag, undefined);
+        console.log(postagens);
         // Verificar se pode ser exibida
         let postagensFiltradas = [];
         postagens.forEach((post) => {
             if (post instanceof PostagemAvancada) {
-                if (post.visualizacoesRestantes > 0) {
+                if (post.hashtag.includes(hashtag) && post.visualizacoesRestantes > 0) {
                     postagensFiltradas.push(post);
                 }
                 ;
@@ -527,7 +528,6 @@ class App {
         let perfildaPostagemConsultada = this._redeSocial.repPerfis.consultar(undefined, nomePerfilPostagemConsultada, undefined);
         let postagemConsultada = this._redeSocial.consultarPostagens(idPostagemConsultada, textoPostagemConsultada, hashtagPostagemConsultada, perfildaPostagemConsultada);
         console.log(postagemConsultada);
-        //console.log(this._redeSocial.consultarPerfil(undefined, nomePerfilPostagemConsultada, undefined));
     }
     curtirPostagem() {
         console.log("5 - Curtir Postagem");
@@ -656,6 +656,13 @@ class PostagemInexistente extends AplicacaoError {
         super(message);
     }
 }
+/*
+class hashtagInexistente extends AplicacaoError {
+    constructor (message: string = 'Hashtag inexistente.') {
+        super(message);
+    }
+}
+*/
 class OpcaoInvalida extends AplicacaoError {
     constructor(message = 'Escolha uma opcao valida.') {
         super(message);

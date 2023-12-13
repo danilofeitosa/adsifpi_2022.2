@@ -128,6 +128,11 @@ class PostagemAvancada extends Postagem {
 class RepositorioDePerfisArray {
     constructor() {
         this._perfis = [];
+        /*
+        obterArraydePerfis(): Perfil[] {
+            return this._perfis;
+        }
+        */
     }
     get perfis() {
         return this._perfis;
@@ -160,6 +165,19 @@ class RepositorioDePerfisLista {
         this._perfis = [];
         this.cabeca = null;
     }
+    /*
+    obterArraydePerfis(): Perfil[] {
+        const arrayPerfis: Perfil[] = [];
+        let atual: Nodo | null = this.cabeca;
+
+        while (atual !== null) {
+            arrayPerfis.push(atual.perfil);
+            atual = atual.proximo;
+        }
+
+        return arrayPerfis;
+    }
+    */
     incluir(perfil) {
         const novoNodo = new Nodo(perfil);
         if (this.cabeca == null) {
@@ -187,6 +205,11 @@ class RepositorioDePerfisLista {
 class RepositorioDePostagensArray {
     constructor() {
         this._postagens = [];
+        /*
+        obterArrayDePostagens(): Postagem[] {
+            return this._postagens;
+        }
+        */
     }
     get postagens() {
         return this._postagens;
@@ -208,7 +231,9 @@ class RepositorioDePostagensArray {
                 }
             }
         }
-        return postagensFiltradas;
+        if (postagensFiltradas.length > 0) {
+            return postagensFiltradas;
+        }
     }
 }
 class NodoPostagem {
@@ -272,14 +297,22 @@ class RedeSocial {
         return this._repPerfis.incluir(perfil);
     }
     consultarPerfil(id, nome, email) {
+        if (!this._repPerfis.consultar(id, nome, email)) {
+            throw new PerfilInexistente();
+        }
         return this._repPerfis.consultar(id, nome, email);
     }
     incluirPostagem(postagem) {
+        if (this._repPostagens.consultar(postagem.id, postagem.texto, undefined, postagem.perfil)) {
+            throw new PostagemJaCadastrada();
+        }
         return this._repPostagens.incluir(postagem);
     }
     consultarPostagens(id, texto, hashtag, perfil) {
-        let postagemConsultada = this._repPostagens.consultar(id, texto, hashtag, perfil);
-        return postagemConsultada;
+        if (!this._repPostagens.consultar(id, texto, hashtag, perfil)) {
+            throw new PostagemInexistente();
+        }
+        return this._repPostagens.consultar(id, texto, hashtag, perfil);
     }
     curtir(idPostagem) {
         let postagemProcurada = this._repPostagens.consultar(idPostagem);
@@ -312,11 +345,12 @@ class RedeSocial {
     obterPostagensPorHashtag(hashtag) {
         // Obter postagens com a hashtag
         let postagens = this.repPostagens.consultar(undefined, undefined, hashtag, undefined);
+        console.log(postagens);
         // Verificar se pode ser exibida
         let postagensFiltradas = [];
         postagens.forEach((post) => {
             if (post instanceof PostagemAvancada) {
-                if (post.visualizacoesRestantes > 0) {
+                if (post.hashtag.includes(hashtag) && post.visualizacoesRestantes > 0) {
                     postagensFiltradas.push(post);
                 }
                 ;
@@ -491,10 +525,9 @@ class App {
         let textoPostagemConsultada = input("Texto da Postagem a ser consultada: ");
         let hashtagPostagemConsultada = input("Hashtag da Postagem a ser consultada: ");
         let nomePerfilPostagemConsultada = input("Nome do Perfil da Postagem a ser consultada: ");
-        let perfildaPostagemConsultada = this._redeSocial.consultarPerfil(undefined, nomePerfilPostagemConsultada, undefined);
+        let perfildaPostagemConsultada = this._redeSocial.repPerfis.consultar(undefined, nomePerfilPostagemConsultada, undefined);
         let postagemConsultada = this._redeSocial.consultarPostagens(idPostagemConsultada, textoPostagemConsultada, hashtagPostagemConsultada, perfildaPostagemConsultada);
         console.log(postagemConsultada);
-        console.log(this._redeSocial.consultarPerfil(undefined, nomePerfilPostagemConsultada, undefined));
     }
     curtirPostagem() {
         console.log("5 - Curtir Postagem");
@@ -623,6 +656,13 @@ class PostagemInexistente extends AplicacaoError {
         super(message);
     }
 }
+/*
+class hashtagInexistente extends AplicacaoError {
+    constructor (message: string = 'Hashtag inexistente.') {
+        super(message);
+    }
+}
+*/
 class OpcaoInvalida extends AplicacaoError {
     constructor(message = 'Escolha uma opcao valida.') {
         super(message);

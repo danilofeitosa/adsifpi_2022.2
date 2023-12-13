@@ -4,18 +4,17 @@ import { log } from 'console';
 
 let input = prompt();
 
-//1) a)
 class Perfil {
     private _id: number;
     private _nome: string;
     private _email: string;
-    //private _postagens: Postagem[] = [];
+    private _postagens: Postagem[] = [];
 
     constructor (_id: number, _nome: string, _email: string) {
         this._id = _id;
         this._nome = _nome;
         this._email = _email;
-        //this._postagens = [];
+        this._postagens = [];
     }
 
     get id(): number {
@@ -29,12 +28,16 @@ class Perfil {
     get email(): string {
         return this._email;
     }
-//1) c)
-   // get postagens(): Postagem[] {
-   //     return this._postagens
-   // }
+
+    get postagens(): Postagem[] {
+        return this._postagens
+    }
+
+    incluirPostagem(postagem: Postagem): void {
+        this._postagens.push(postagem);
+    }
 }
-//1) b)
+
 class Postagem {
     private _id: number;
     private _texto: string;
@@ -75,15 +78,15 @@ class Postagem {
     get perfil(): Perfil {
         return this._perfil;
     }
-//2) a) i)
+
     curtir(): void {
         this._curtidas++
     }
-//2) a) ii)  
+
     descurtir(): void {
         this._descurtidas++
     }
-//2) a) iii) 
+
     ehPopular(): boolean {
         if(this._curtidas > (this._descurtidas / (50 / 100))) {
             return true
@@ -92,7 +95,7 @@ class Postagem {
         }
     }
 }
-//1) d)
+
 class PostagemAvancada extends Postagem {
     private _hashtags: string[] = [];
     private _visualizacoesRestantes: number;
@@ -110,11 +113,11 @@ class PostagemAvancada extends Postagem {
     get visualizacoesRestantes(): number {
         return this._visualizacoesRestantes;
     }
-//2) b) i)
+
     adicionarHashtag(hashtag: string): void {
        this._hashtags.push(hashtag);
     }
-//2) b) ii)
+
     existeHashtag(hashtag: string): boolean {
         for (let hashtagConsultada of this._hashtags) {
             if (hashtagConsultada == hashtag) {
@@ -124,19 +127,25 @@ class PostagemAvancada extends Postagem {
             }
         }
     }
-//2) b) iii)
+
     decrementarVisualizacoes(): void {
         this._visualizacoesRestantes--;
     }
 }
 
 interface IRepositorioDePerfis {
+    perfis: Perfil[];
     incluir(perfil: Perfil): void;
     consultar(id?: number, nome?: string, email?: string): Perfil; // | null;
+    // obterArraydePerfis(): Perfil[];
 }
 
 class RepositorioDePerfisArray implements IRepositorioDePerfis {
     private _perfis: Perfil[] = [];
+
+    get perfis(): Perfil[] {
+        return this._perfis;
+    }
 
     incluir(perfil: Perfil): void {
         this._perfis.push(perfil);
@@ -153,6 +162,11 @@ class RepositorioDePerfisArray implements IRepositorioDePerfis {
         }
         return perfilConsultado;
     }
+    /*
+    obterArraydePerfis(): Perfil[] {
+        return this._perfis;
+    }
+    */
 }
 
 class Nodo {
@@ -166,12 +180,29 @@ class Nodo {
 }
 
 class RepositorioDePerfisLista implements IRepositorioDePerfis {
+    private _perfis: Perfil[] = [];
     private cabeca: Nodo | null;
+
+    get perfis(): Perfil[] {
+        return this._perfis;
+    }
 
     constructor() {
         this.cabeca = null;
     }
+    /*
+    obterArraydePerfis(): Perfil[] {
+        const arrayPerfis: Perfil[] = [];
+        let atual: Nodo | null = this.cabeca;
 
+        while (atual !== null) {
+            arrayPerfis.push(atual.perfil);
+            atual = atual.proximo;
+        }
+
+        return arrayPerfis;
+    }
+    */
     incluir(perfil: Perfil): void {
         const novoNodo = new Nodo(perfil);
 
@@ -200,34 +231,11 @@ class RepositorioDePerfisLista implements IRepositorioDePerfis {
     }
 }
 
-/*
-class RepositorioDePerfis {
-// 03) a)
-    private _perfis: Perfil[] = []
-
-    get perfis(): Perfil[] {
-        return this._perfis;
-    }
-// 03) b)
-    incluir(perfil: Perfil): void {
-        this._perfis.push(perfil)
-    }
-// 03) c)
-    consultar(id?: number, nome?: string, email?: string): Perfil | null {
-        if (id != null || nome != null || email != null) {
-            for (let perfil of this._perfis) {
-                if (perfil.id == id || perfil.nome == nome || perfil.email == email) {
-                   return perfil
-                }
-            }
-        }
-        return null;
-    }
-}
-*/
 interface IRepositorioDePostagens {
+    postagens: Postagem[];
     incluir(postagem: Postagem): void;
     consultar(id?: number, texto?: string, hashtag?: string, perfil?: Perfil): Postagem[] | null; 
+    // obterArrayDePostagens(): Postagem[];
 }
 
 class RepositorioDePostagensArray implements IRepositorioDePostagens {
@@ -239,19 +247,11 @@ class RepositorioDePostagensArray implements IRepositorioDePostagens {
 
     incluir(postagem: Postagem): void {
         this._postagens.push(postagem);
-       // postagem.perfil.postagens.push(postagem);
-        //console.log("Certo")
-        /*
-        if (perfilAssociado && perfilAssociado.postagens) {
-            perfilAssociado.postagens.push(postagem);
-        } else {
-            console.error("O objeto 'perfilAssociado' ou 'postagens' é indefinido.");
-        }
-        */
     }
-// 04) c)
+
     consultar(id?: number, texto?: string, hashtag?: string, perfil?: Perfil): Postagem[] | null {
         let postagensFiltradas: Postagem[] = []
+
         for (let postagemConsultada of this._postagens) {
             if(postagemConsultada instanceof PostagemAvancada) {
                 if (postagemConsultada.id == id || postagemConsultada.texto == texto || postagemConsultada.existeHashtag(hashtag) || postagemConsultada.perfil == perfil) {
@@ -263,8 +263,16 @@ class RepositorioDePostagensArray implements IRepositorioDePostagens {
                 }
             }
         }
-        return postagensFiltradas
+
+        if (postagensFiltradas.length > 0) {
+            return postagensFiltradas;
+        }
     }
+    /*
+    obterArrayDePostagens(): Postagem[] {
+        return this._postagens;
+    }
+    */
 }
 
 class NodoPostagem {
@@ -278,7 +286,12 @@ class NodoPostagem {
 }
 
 class RepositorioDePostagensLista implements IRepositorioDePostagens {
+    private _postagens: Postagem[] = [];
     private cabeca: NodoPostagem | null;
+
+    get postagens(): Postagem[] {
+        return this._postagens;
+    }
 
     constructor() {
         this.cabeca = null;
@@ -318,41 +331,22 @@ class RepositorioDePostagensLista implements IRepositorioDePostagens {
         }
         return postagensFiltradas.length > 0 ? postagensFiltradas : null;
     }
-}
-/*
-class RepositorioDePostagens {
-// 04) a)
-    private _postagens: Postagem[] = []
+    /*
+    obterArrayDePostagens(): Postagem[] {
+        const arrayPostagens: Postagem[] = [];
+        let atual: NodoPostagem | null = this.cabeca;
 
-    get postagens() {
-        return this._postagens;
-    }
-// 04) b)
-    incluir(postagem: Postagem): void {
-        this._postagens.push(postagem);
-        let perfilAssociado = postagem.perfil;
-        perfilAssociado.postagens.push(postagem);
-    }
-// 04) c)
-    consultar(id?: number, texto?: string, hashtag?: string, perfil?: Perfil): Postagem[] | null {
-        let postagensFiltradas: Postagem[] = []
-        for (let postagemConsultada of this._postagens) {
-            if(postagemConsultada instanceof PostagemAvancada) {
-                if (postagemConsultada.id == id || postagemConsultada.texto == texto || postagemConsultada.existeHashtag(hashtag) || postagemConsultada.perfil == perfil) {
-                    postagensFiltradas.push(postagemConsultada);
-                }
-            } else {
-                if (postagemConsultada.id == id || postagemConsultada.texto == texto || postagemConsultada.perfil == perfil) {
-                    postagensFiltradas.push(postagemConsultada);
-                }
-            }
+        while (atual !== null) {
+            arrayPostagens.push(atual.postagem);
+            atual = atual.proximo;
         }
-        return postagensFiltradas
+
+        return arrayPostagens;
     }
+    */
 }
-*/
 class RedeSocial {
-//05) a)
+
     private _repPerfis: IRepositorioDePerfis; /*= new RepositorioDePerfis();*/
     private _repPostagens: IRepositorioDePostagens; /*= new RepositorioDePostagens();*/
 
@@ -369,7 +363,7 @@ class RedeSocial {
         return this._repPostagens;
     }
     
-//05) b) i)
+
     incluirPerfil(perfil: Perfil): void {
         if (this._repPerfis.consultar(perfil.id, perfil.nome, perfil.email)) {
             throw new PerfilJaCadastrado();
@@ -378,29 +372,24 @@ class RedeSocial {
     }
     
     consultarPerfil(id: number, nome: string, email: string): Perfil | null {
+        if(!this._repPerfis.consultar(id, nome, email)) {
+            throw new PerfilInexistente();
+        }
         return this._repPerfis.consultar(id, nome, email);
     }
 
     incluirPostagem(postagem: Postagem): void {
-        return this._repPostagens.incluir(postagem);
-        /*
-        if(this._repPostagens.consultar(postagem.id, postagem.texto).length <= 0) {
-            this._repPostagens.incluir(postagem);
-        } else {
-            for (let postagemConsultada of this._repPostagens.postagens) {
-                if (postagem.id != null && postagem.texto != null && postagem.curtidas != null && postagem.descurtidas != null && postagem.data != null && postagem.perfil != null) {
-                    if (postagemConsultada.id == postagem.id) {
-                        this._repPostagens.incluir(postagem);
-                    }
-                } 
-            }  
+        if(this._repPostagens.consultar(postagem.id, postagem.texto, undefined, postagem.perfil)) {
+            throw new PostagemJaCadastrada();
         }
-        */
+        return this._repPostagens.incluir(postagem);
     }
 
-    consultarPostagens(id: number, texto: string, hashtag: string, perfil: Perfil): Postagem[] | null {
-        let postagemConsultada = this._repPostagens.consultar(id, texto, hashtag, perfil);
-        return postagemConsultada
+    consultarPostagens(id: number, texto: string, hashtag: string, perfil: Perfil): Postagem[] {
+        if(!this._repPostagens.consultar(id, texto, hashtag, perfil)) {
+            throw new PostagemInexistente();
+        }
+        return this._repPostagens.consultar(id, texto, hashtag, perfil); 
     }
 
     curtir(idPostagem: number) {
@@ -438,11 +427,12 @@ class RedeSocial {
     obterPostagensPorHashtag(hashtag: string): PostagemAvancada[] {
         // Obter postagens com a hashtag
         let postagens = this.repPostagens.consultar(undefined, undefined, hashtag, undefined);
+        console.log(postagens)
         // Verificar se pode ser exibida
         let postagensFiltradas: PostagemAvancada[] = [];
         postagens.forEach((post) => {
             if(post instanceof PostagemAvancada) {
-                if(post.visualizacoesRestantes > 0) {
+                if(post.hashtag.includes(hashtag) && post.visualizacoesRestantes > 0) {
                     postagensFiltradas.push(post)
                 };
             };
@@ -467,8 +457,8 @@ class App {
                 console.log(error.message);
             }
         }
-        //this.carregarPerfisDeArquivo();
-        // this.carregarPostagensDeArquivo();
+        this.carregarPerfisDeArquivo();
+        this.carregarPostagensDeArquivo();
     }
 
     exibirmenu(): void {
@@ -522,23 +512,11 @@ class App {
             limpar_tela()
         } while (opcao != "0");
             console.log("Iniciado o processo de gravação dos Perfis em arquivo.");
-            let animacao = ""
-            for (let i: number = 0; i < 5; i++) {
-                let hifen = "."
-                animacao += hifen
-                console.log(animacao)
-            }
-            //this.salvarPerfisEmArquivo()
+            this.salvarPerfisEmArquivo()
             console.log("Gravação de Perfis finalizada com sucesso!")
             console.log("")
             console.log("Iniciado o processo de gravação das Postagens em arquivo.")
-            let animacao2 = ""
-            for (let i: number = 0; i < 5; i++) {
-                let hifen = "."
-                animacao2 += hifen
-                console.log(animacao2)
-            }
-            //this.salvarPostagensEmArquivo()
+            this.salvarPostagensEmArquivo()
             console.log('Gravação finalizada com sucesso. Até a próxima! :D');
     }
 
@@ -587,17 +565,6 @@ class App {
         console.log(`Perfil { ${novoperfil.nome} } incluído com sucesso!`);
     }
 
-    /*
-    public incluirPerfil() {
-        console.log("Incluir Perfil:" );
-        let idPerfil: number = parseInt(input("ID do Perfil: "));
-        let nomePerfil: string = input("Nome do Perfil: ");
-        let emailPerfil: string = input("Email do Perfil: ");
-        let novoperfil: Perfil = new Perfil(idPerfil, nomePerfil, emailPerfil);
-        this._redeSocial.incluirPerfil(novoperfil);
-        console.log(`Perfil { ${novoperfil.nome} } incluído com sucesso!`);
-    }
-    */
     public consultarPerfil() {
         console.log("2 - Consultar Perfil");
         let perfilConsultado = this.pedirPerfil();
@@ -617,7 +584,8 @@ class App {
         let hashtagsDaPostagem: string = input("Escreva a(s) hashtags a serem cadastradas precedidas de #. Deixe um espaço entre as hashtags: ");
         let arrayHashtagsDaPostagem: string[] = hashtagsDaPostagem.replace(/^#/, "").split("#");
         arrayHashtagsDaPostagem = arrayHashtagsDaPostagem.map(hashtag => hashtag.trim());
-        let avancada = arrayHashtagsDaPostagem.length > 0
+        let avancada = arrayHashtagsDaPostagem.some(hashtag => hashtag !== '');
+        //let avancada = arrayHashtagsDaPostagem.length > 0
         let novaPostagem;
         if (avancada) { // Verificando se tem hashtag na postagem
             novaPostagem = new PostagemAvancada(idPostagem, textoPostagem, 0, 0, new Date(), perfilDaPostagem, arrayHashtagsDaPostagem, 2);    
@@ -643,10 +611,9 @@ class App {
         let textoPostagemConsultada: string = input("Texto da Postagem a ser consultada: ");
         let hashtagPostagemConsultada: string = input("Hashtag da Postagem a ser consultada: ");
         let nomePerfilPostagemConsultada: string = input("Nome do Perfil da Postagem a ser consultada: ");
-        let perfildaPostagemConsultada: Perfil = this._redeSocial.consultarPerfil(undefined, nomePerfilPostagemConsultada, undefined);
+        let perfildaPostagemConsultada: Perfil = this._redeSocial.repPerfis.consultar(undefined, nomePerfilPostagemConsultada, undefined);
         let postagemConsultada = this._redeSocial.consultarPostagens(idPostagemConsultada, textoPostagemConsultada, hashtagPostagemConsultada, perfildaPostagemConsultada);
         console.log(postagemConsultada);
-        console.log(this._redeSocial.consultarPerfil(undefined, nomePerfilPostagemConsultada, undefined));
     }
 
     public curtirPostagem() {
@@ -686,10 +653,9 @@ class App {
             console.log()
         });
     }
-    
-    /*
-    // Salvando os Perfis no arquivo ../backup_perfis.txt na ordem: id, nome, email e postagens.
+
     public salvarPerfisEmArquivo(): void {
+        
         let stringPerfis: string = "";
         let perfisASeremSalvos = this._redeSocial.repPerfis.perfis;
         for (let perfil of perfisASeremSalvos) {
@@ -697,63 +663,77 @@ class App {
                 stringPerfis += `${perfil.id}#${perfil.nome}#${perfil.email}\n`
             }
         }
-        // Pela redundância, achei melhor não salvar postagens aqui. Na hora da inicialização tentarei vincular as postagens aos seus respectivos perfis.
         fs.writeFileSync(this.CAMINHO_ARQUIVO_PERFIS, stringPerfis, 'utf-8');
     }
-    // Salvando as Postagens no arquivo ../backup_postagens.txt na ordem: id, texto, curtidas, descurtidas, data, perfil, hashtags e visualizaçõesrestantes (estes 2 últimos em caso de postagens avançadas)
-    */
-    /*
-    public salvarPostagensEmArquivo(): void {
-        let stringPostagens: string = "";
-        let postagensASeremSalvas = this._redeSocial.repPostagens.postagens;
-        for (let postagem of postagensASeremSalvas) {
-            if (postagem instanceof PostagemAvancada) {
-                stringPostagens += `${postagem.id}#${postagem.texto}#${postagem.curtidas}#${postagem.descurtidas}#${postagem.data}#${postagem.perfil.id}#${postagem.hashtag}#${postagem.visualizacoesRestantes}\n`
-            } else {
-                stringPostagens += `${postagem.id}#${postagem.texto}#${postagem.curtidas}#${postagem.descurtidas}#${postagem.data}${postagem.perfil.id}#\n`
-            }
-        }
-        // Pela redundância, achei melhor não salvar postagens aqui. Na hora da inicialização irei vincular as postagens aos seus respectivos perfis.
-        fs.writeFileSync(this.CAMINHO_ARQUIVO_POSTAGENS, stringPostagens, 'utf-8');
-    }
-*//*
+
     public carregarPerfisDeArquivo(): void {
-        let perfis: Perfil[] = []
         let conteudoArquivoPerfis: string[] = fs.readFileSync(this.CAMINHO_ARQUIVO_PERFIS, 'utf-8').split("\n");
+
         if (conteudoArquivoPerfis.length > 0 && conteudoArquivoPerfis[0].trim() == "") {
             conteudoArquivoPerfis.shift();
         }
-        // Fiz esse IF para quando o arquivo de texto estiver vazio, ele ignorar a primeira linha vazia.
-        let perfilCadastrado: string[] = []
+
         for(let i = 0; i < conteudoArquivoPerfis.length; i++) {
-                perfilCadastrado = conteudoArquivoPerfis[i].split("#")
-                let novoPerfil = new Perfil(Number(perfilCadastrado[0]), perfilCadastrado[1], perfilCadastrado[2])
-                perfis[i] = novoPerfil
-                this._redeSocial.repPerfis.perfis.push(perfis[i])
+            let perfilCadastrado = conteudoArquivoPerfis[i].split("#");
+    
+            if (perfilCadastrado.length === 3) { // Certifique-se de que há três partes no perfil
+                let novoPerfil = new Perfil(Number(perfilCadastrado[0]), perfilCadastrado[1], perfilCadastrado[2]);
+                this._redeSocial.repPerfis.perfis.push(novoPerfil);
+            }
         }
     }
-*//*
+
+    public salvarPostagensEmArquivo(): void {
+        let stringPostagens: string = "";
+    
+        for (let postagem of this._redeSocial.repPostagens.postagens) {
+            if (postagem instanceof PostagemAvancada) {
+                stringPostagens += `${postagem.id}#${postagem.texto}#${postagem.curtidas}#${postagem.descurtidas}#${postagem.data.toISOString()}#${postagem.perfil.id}#${postagem.hashtag.join("#")}#${postagem.visualizacoesRestantes}\n`;
+            } else if (postagem instanceof Postagem) {
+                stringPostagens += `${postagem.id}#${postagem.texto}#${postagem.curtidas}#${postagem.descurtidas}#${postagem.data.toISOString()}#${postagem.perfil.id}\n`;
+            }
+        }
+    
+        fs.writeFileSync(this.CAMINHO_ARQUIVO_POSTAGENS, stringPostagens, 'utf-8');
+    }
+    
     public carregarPostagensDeArquivo(): void {
-        let postagens: Postagem[] = []
         let conteudoArquivoPostagens: string[] = fs.readFileSync(this.CAMINHO_ARQUIVO_POSTAGENS, 'utf-8').split("\n");
+    
         if (conteudoArquivoPostagens.length > 0 && conteudoArquivoPostagens[0].trim() == "") {
             conteudoArquivoPostagens.shift();
         }
-        // Fiz esse IF para quando o arquivo de texto estiver vazio, ele ignorar a primeira linha vazia.
-        let postagemCadastrada: string[] = []
-        for(let i = 0; i < conteudoArquivoPostagens.length; i++) {
-            postagemCadastrada = conteudoArquivoPostagens[i].split("#")
-            if (postagemCadastrada instanceof PostagemAvancada) {
-                let novaPostagem = new PostagemAvancada(Number(postagemCadastrada[0]), postagemCadastrada[1], Number(postagemCadastrada[2]), Number(postagemCadastrada[3]), new Date(postagemCadastrada[4]), new Perfil(Number(postagemCadastrada[5][0]), postagemCadastrada[5][1], postagemCadastrada[5][2]), postagemCadastrada[6].split("") /* Como fazer para criar o array de hashtags no carregamento do arquivo? Substituir (postagemCadastrada[6].split("")) pela resposta *//*, Number(postagemCadastrada[7]))
-                postagens[i] = novaPostagem
-                this._redeSocial.repPostagens.postagens.push(postagens[i])
-            } else {
-                let novaPostagem = new Postagem(Number(postagemCadastrada[0]), postagemCadastrada[1], Number(postagemCadastrada[2]), Number(postagemCadastrada[3]), new Date(postagemCadastrada[4]), new Perfil(Number(postagemCadastrada[5][0]), postagemCadastrada[5][1], postagemCadastrada[5][2]))
-                postagens[i] = novaPostagem
-                this._redeSocial.repPostagens.postagens.push(postagens[i])
-            }    
+    
+        for (let i = 0; i < conteudoArquivoPostagens.length; i++) {
+            let dadosPostagem = conteudoArquivoPostagens[i].split("#");
+    
+            if (dadosPostagem.length >= 6) { // Certifique-se de que há pelo menos seis partes na postagem
+                let id = Number(dadosPostagem[0]);
+                let texto = dadosPostagem[1];
+                let curtidas = parseInt(dadosPostagem[2]) || 0; // Usar 0 se não puder converter para número
+                let descurtidas = parseInt(dadosPostagem[3]) || 0;
+                let data = new Date(dadosPostagem[4]);
+                let perfilId = Number(dadosPostagem[5]);
+    
+                let perfil = this._redeSocial.repPerfis.consultar(perfilId);
+    
+                if (perfil) {
+                    if (dadosPostagem.length > 6) { // Se houver hashtags
+                        let hashtags = dadosPostagem.slice(6);
+                        let visualizacoesRestantes = Number(hashtags.pop()) || 0; // Último elemento é visualizações
+    
+                        let novaPostagem = new PostagemAvancada(id, texto, curtidas, descurtidas, data, perfil, hashtags, visualizacoesRestantes);
+                        this._redeSocial.repPostagens.incluir(novaPostagem);
+                        perfil.incluirPostagem(novaPostagem);
+                    } else {
+                        let novaPostagem = new Postagem(id, texto, curtidas, descurtidas, data, perfil);
+                        this._redeSocial.repPostagens.incluir(novaPostagem);
+                        perfil.incluirPostagem(novaPostagem);
+                    }
+                }
+            }
         }
-    }*/
+    }
 }
 
 class AplicacaoError extends Error {
@@ -785,7 +765,13 @@ class PostagemInexistente extends AplicacaoError {
         super(message);
     }
 }
-
+/*
+class hashtagInexistente extends AplicacaoError {
+    constructor (message: string = 'Hashtag inexistente.') {
+        super(message);
+    }
+}
+*/
 class OpcaoInvalida extends AplicacaoError {
     constructor (message: string = 'Escolha uma opcao valida.') {
         super(message);
