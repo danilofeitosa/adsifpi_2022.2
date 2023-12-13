@@ -193,15 +193,6 @@ class RepositorioDePostagensArray {
     }
     incluir(postagem) {
         this._postagens.push(postagem);
-        // postagem.perfil.postagens.push(postagem);
-        //console.log("Certo")
-        /*
-        if (perfilAssociado && perfilAssociado.postagens) {
-            perfilAssociado.postagens.push(postagem);
-        } else {
-            console.error("O objeto 'perfilAssociado' ou 'postagens' é indefinido.");
-        }
-        */
     }
     consultar(id, texto, hashtag, perfil) {
         let postagensFiltradas = [];
@@ -285,19 +276,6 @@ class RedeSocial {
     }
     incluirPostagem(postagem) {
         return this._repPostagens.incluir(postagem);
-        /*
-        if(this._repPostagens.consultar(postagem.id, postagem.texto).length <= 0) {
-            this._repPostagens.incluir(postagem);
-        } else {
-            for (let postagemConsultada of this._repPostagens.postagens) {
-                if (postagem.id != null && postagem.texto != null && postagem.curtidas != null && postagem.descurtidas != null && postagem.data != null && postagem.perfil != null) {
-                    if (postagemConsultada.id == postagem.id) {
-                        this._repPostagens.incluir(postagem);
-                    }
-                }
-            }
-        }
-        */
     }
     consultarPostagens(id, texto, hashtag, perfil) {
         let postagemConsultada = this._repPostagens.consultar(id, texto, hashtag, perfil);
@@ -552,17 +530,14 @@ class App {
             console.log();
         });
     }
-    // Salvando os Perfis no arquivo ../backup_perfis.txt na ordem: id, nome, email e postagens.
     salvarPerfisEmArquivo() {
         let stringPerfis = "";
-        //if (this._redeSocial instanceof RepositorioDePerfisArray)
         let perfisASeremSalvos = this._redeSocial.repPerfis.perfis;
         for (let perfil of perfisASeremSalvos) {
             if (perfil) {
                 stringPerfis += `${perfil.id}#${perfil.nome}#${perfil.email}\n`;
             }
         }
-        // Pela redundância, achei melhor não salvar postagens aqui. Na hora da inicialização tentarei vincular as postagens aos seus respectivos perfis.
         fs.writeFileSync(this.CAMINHO_ARQUIVO_PERFIS, stringPerfis, 'utf-8');
     }
     carregarPerfisDeArquivo() {

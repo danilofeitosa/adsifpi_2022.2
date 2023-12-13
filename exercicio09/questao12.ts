@@ -228,15 +228,6 @@ class RepositorioDePostagensArray implements IRepositorioDePostagens {
 
     incluir(postagem: Postagem): void {
         this._postagens.push(postagem);
-       // postagem.perfil.postagens.push(postagem);
-        //console.log("Certo")
-        /*
-        if (perfilAssociado && perfilAssociado.postagens) {
-            perfilAssociado.postagens.push(postagem);
-        } else {
-            console.error("O objeto 'perfilAssociado' ou 'postagens' é indefinido.");
-        }
-        */
     }
 
     consultar(id?: number, texto?: string, hashtag?: string, perfil?: Perfil): Postagem[] | null {
@@ -345,19 +336,6 @@ class RedeSocial {
 
     incluirPostagem(postagem: Postagem): void {
         return this._repPostagens.incluir(postagem);
-        /*
-        if(this._repPostagens.consultar(postagem.id, postagem.texto).length <= 0) {
-            this._repPostagens.incluir(postagem);
-        } else {
-            for (let postagemConsultada of this._repPostagens.postagens) {
-                if (postagem.id != null && postagem.texto != null && postagem.curtidas != null && postagem.descurtidas != null && postagem.data != null && postagem.perfil != null) {
-                    if (postagemConsultada.id == postagem.id) {
-                        this._repPostagens.incluir(postagem);
-                    }
-                } 
-            }  
-        }
-        */
     }
 
     consultarPostagens(id: number, texto: string, hashtag: string, perfil: Perfil): Postagem[] | null {
@@ -626,18 +604,15 @@ class App {
             console.log()
         });
     }
-        
-    // Salvando os Perfis no arquivo ../backup_perfis.txt na ordem: id, nome, email e postagens.
+
     public salvarPerfisEmArquivo(): void {
         let stringPerfis: string = "";
-        //if (this._redeSocial instanceof RepositorioDePerfisArray)
         let perfisASeremSalvos = this._redeSocial.repPerfis.perfis;
         for (let perfil of perfisASeremSalvos) {
             if (perfil) {
                 stringPerfis += `${perfil.id}#${perfil.nome}#${perfil.email}\n`
             }
         }
-        // Pela redundância, achei melhor não salvar postagens aqui. Na hora da inicialização tentarei vincular as postagens aos seus respectivos perfis.
         fs.writeFileSync(this.CAMINHO_ARQUIVO_PERFIS, stringPerfis, 'utf-8');
     }
 
@@ -709,48 +684,6 @@ class App {
             }
         }
     }
-    
-    
-    // Salvando as Postagens no arquivo ../backup_postagens.txt na ordem: id, texto, curtidas, descurtidas, data, perfil, hashtags e visualizaçõesrestantes (estes 2 últimos em caso de postagens avançadas)
-    
-    /*
-    public salvarPostagensEmArquivo(): void {
-        let stringPostagens: string = "";
-        let postagensASeremSalvas = this._redeSocial.repPostagens.postagens;
-        for (let postagem of postagensASeremSalvas) {
-            if (postagem instanceof PostagemAvancada) {
-                stringPostagens += `${postagem.id}#${postagem.texto}#${postagem.curtidas}#${postagem.descurtidas}#${postagem.data}#${postagem.perfil.id}#${postagem.hashtag}#${postagem.visualizacoesRestantes}\n`
-            } else {
-                stringPostagens += `${postagem.id}#${postagem.texto}#${postagem.curtidas}#${postagem.descurtidas}#${postagem.data}${postagem.perfil.id}#\n`
-            }
-        }
-        // Pela redundância, achei melhor não salvar postagens aqui. Na hora da inicialização irei vincular as postagens aos seus respectivos perfis.
-        fs.writeFileSync(this.CAMINHO_ARQUIVO_POSTAGENS, stringPostagens, 'utf-8');
-    }
-*/
-
-/*
-    public carregarPostagensDeArquivo(): void {
-        let postagens: Postagem[] = []
-        let conteudoArquivoPostagens: string[] = fs.readFileSync(this.CAMINHO_ARQUIVO_POSTAGENS, 'utf-8').split("\n");
-        if (conteudoArquivoPostagens.length > 0 && conteudoArquivoPostagens[0].trim() == "") {
-            conteudoArquivoPostagens.shift();
-        }
-        // Fiz esse IF para quando o arquivo de texto estiver vazio, ele ignorar a primeira linha vazia.
-        let postagemCadastrada: string[] = []
-        for(let i = 0; i < conteudoArquivoPostagens.length; i++) {
-            postagemCadastrada = conteudoArquivoPostagens[i].split("#")
-            if (postagemCadastrada instanceof PostagemAvancada) {
-                let novaPostagem = new PostagemAvancada(Number(postagemCadastrada[0]), postagemCadastrada[1], Number(postagemCadastrada[2]), Number(postagemCadastrada[3]), new Date(postagemCadastrada[4]), new Perfil(Number(postagemCadastrada[5][0]), postagemCadastrada[5][1], postagemCadastrada[5][2]), postagemCadastrada[6].split("") /* Como fazer para criar o array de hashtags no carregamento do arquivo? Substituir (postagemCadastrada[6].split("")) pela resposta *//*, Number(postagemCadastrada[7]))
-                postagens[i] = novaPostagem
-                this._redeSocial.repPostagens.postagens.push(postagens[i])
-            } else {
-                let novaPostagem = new Postagem(Number(postagemCadastrada[0]), postagemCadastrada[1], Number(postagemCadastrada[2]), Number(postagemCadastrada[3]), new Date(postagemCadastrada[4]), new Perfil(Number(postagemCadastrada[5][0]), postagemCadastrada[5][1], postagemCadastrada[5][2]))
-                postagens[i] = novaPostagem
-                this._redeSocial.repPostagens.postagens.push(postagens[i])
-            }    
-        }
-    }*/
 }
 
 class AplicacaoError extends Error {
